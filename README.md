@@ -1,6 +1,6 @@
 # URI File Share
 
-URI File Share is a simple web application that allows users to upload a file, convert it to a Base64 string, and generate a shareable link. The application also provides a preview of the file if it's an image and includes various metadata about the file.
+URI File Share is a simple, client-side web application that allows users to upload a file, convert it to a Base64 string, and generate a shareable link. Since all operations are performed locally in your browser, your files is only ever transferred within the text you copy and share on your devices, ensuring maximum privacy and security.
 
 ## Features
 
@@ -14,8 +14,7 @@ URI File Share is a simple web application that allows users to upload a file, c
 - Upload another file with a simple link.
 
 ## Demo
-
-![Demo](https://w3.nz)
+A demo is available at [w3.nz](https://w3.nz)
 
 ## Getting Started
 
