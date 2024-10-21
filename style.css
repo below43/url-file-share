@@ -1,0 +1,159 @@
+/* style.css */
+body {
+	font-family: Arial, sans-serif;
+	background-color: #f4f4f9;
+	color: #333;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	height: 100vh;
+}
+
+.container {
+	text-align: center;
+}
+
+h1 {
+	color: #4a90e2;
+	margin-bottom: 20px;
+}
+
+input[type="file"] {
+	margin-bottom: 20px;
+	padding: 10px;
+	border: 2px solid #4a90e2;
+	border-radius: 5px;
+	font-size: 16px;
+}
+
+
+button,
+.button {
+	background-color: #4a90e2;
+	color: white;
+	border: none;
+	padding: 10px 20px;
+	cursor: pointer;
+	border-radius: 5px;
+	font-size: 16px;
+	margin: 5px;
+	text-decoration: none;
+	/* Ensure links styled as buttons have no underline */
+}
+
+button:hover,
+.button:hover {
+	background-color: #357ab8;
+}
+
+#linkContainer {
+	margin-top: 20px;
+}
+
+#linkContainer a {
+	color: #4a90e2;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+#linkContainer a:hover {
+	text-decoration: underline;
+}
+
+.link-preview p.link-preview-scrollable {
+	border: 1px solid #ccc;
+	padding: 10px;
+	margin: 0 auto;
+	margin-top: 20px;
+	border-radius: 5px;
+	background-color: #fff;
+	max-width: 300px;
+	/* Set a maximum width */
+	overflow-x: auto;
+	/* Enable horizontal scrolling */
+	word-break: break-all;
+	margin-bottom: 10px;
+	white-space: nowrap;
+	/* Prevent wrapping */
+	user-select: none;
+	/* Standard syntax */
+	-webkit-user-select: none;
+	/* Safari */
+	-moz-user-select: none;
+	/* Firefox */
+	-ms-user-select: none;
+	/* Internet Explorer/Edge */
+}
+
+.link-preview a {
+	color: #4a90e2;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.link-preview a:hover {
+	text-decoration: underline;
+}
+
+.file-info {
+	border: 1px solid #ccc;
+	padding: 20px;
+	margin-bottom: 20px;
+	border-radius: 5px;
+	background-color: #fff;
+	text-align: left;
+	display: inline-block;
+}
+
+.file-info p {
+	margin: 10px 0;
+}
+
+.file-info b {
+	display: block;
+}
+
+
+footer {
+	margin-top: 60px;
+	text-align: center;
+	padding: 10px;
+	border-top: 1px solid #ccc;
+
+}
+
+.footer-links {
+	display: flex;
+	justify-content: center;
+	gap: 20px;
+	font-size: 12px;
+	font-weight: 400;
+}
+
+footer a,
+.small-link {
+	color: #4a90e2;
+	text-decoration: none;
+	font-size: 12px;
+	font-weight: 400;
+}
+
+footer a:hover,
+.small-link:hover {
+	text-decoration: underline;
+}
+
+p.small-link-wrap {
+	margin-top: 20px;
+}
+
+p.warning {
+    max-width: 60%;
+    text-align: justify;
+    margin: 0 auto;
+    font-weight: 400;
+    margin-top: 30px;
+    color: purple;
+}

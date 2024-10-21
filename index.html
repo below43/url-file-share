@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>URI File Share</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+	<div class="container">
+		<h1>URI File Share</h1>
+		<input type="file" id="fileInput" onchange="convertFile()">
+		<br>
+		<button id="button-convert-file" onclick="convertFile()">Convert and generate link</button>
+		<p id="linkContainer"></p>
+		<footer>
+			<div class="footer-links">
+				Created by Andrew Drake <a href="https://twitter.com/below43" target="_blank">Twitter</a>
+				<a href="https://github.com/below43/uri-file-share" target="_blank">GitHub</a>
+			</div>
+		</footer>
+	</div>
+	<script>
+		function convertFile()
+		{
+			const fileInput = document.getElementById('fileInput');
+			const buttonConvertFile = document.getElementById('button-convert-file');
+			const file = fileInput.files[0];
+			if (file)
+			{
+				// Change cursor to hourglass
+				document.body.style.cursor = 'wait';
+				buttonConvertFile.style.cursor = 'wait';
+
+				const reader = new FileReader();
+				reader.onload = function (event)
+				{
+					const base64String = event.target.result.split(',')[1];
+					const mimeType = encodeURIComponent(file.type);
+					const uploadDate = encodeURIComponent(getLocalIsoTimestamp());
+					const encodedFilename = encodeURIComponent(file.name);
+					const encodedFilesize = encodeURIComponent(file.size);
+
+					const link = `share.html?filename=${encodedFilename}&filesize=${encodedFilesize}&mimetype=${mimeType}&uploaddate=${uploadDate}&data=${encodeURIComponent(base64String)}`;
+					const truncatedLink = link.length > 300 ? link.substring(0, 300) + '... etc...' : link;
+					const linkContainer = document.getElementById('linkContainer'); let warningMessage = '';
+
+					// Check if the URL length exceeds the limit (e.g., 2000 characters)
+					if (link.length > 2000000)
+					{
+						warningMessage = `
+							<p class="warning">
+								<b>Warning:</b> The generated URL is ${formatNumberWithCommas(link.length)} characters long which will probably not work in some browsers.
+							</p>
+						`;
+					}
+					linkContainer.innerHTML = `
+                        <div class="link-preview">
+                            <p class="link-preview-scrollable">${truncatedLink}</p>
+                            <br/>
+                            <button onclick="copyToClipboard('${link}')">Copy URL</button>
+                            <br><br>
+                            <a href="${link}" target="_blank">Preview URL</a>
+                        </div>
+			            ${warningMessage}
+                    `;
+
+					// Revert cursor back to default
+					document.body.style.cursor = 'default';
+					buttonConvertFile.style.cursor = 'pointer';
+				};
+				reader.readAsDataURL(file);
+			} else
+			{
+				alert('Please select a file first.');
+			}
+		}
+
+		function copyToClipboard(text)
+		{
+			navigator.clipboard.writeText(text).then(() =>
+			{
+				alert('URL copied to clipboard');
+			}).catch(err =>
+			{
+				console.error('Could not copy text: ', err);
+			});
+		}
+
+		function getLocalIsoTimestamp()
+		{
+			const date = new Date();
+			const offset = date.getTimezoneOffset();
+			const sign = offset > 0 ? '-' : '+';
+			const absOffset = Math.abs(offset);
+			const hoursOffset = String(Math.floor(absOffset / 60)).padStart(2, '0');
+			const minutesOffset = String(absOffset % 60).padStart(2, '0');
+			const isoString = date.toISOString().split('.')[0];
+			return `${isoString}${sign}${hoursOffset}:${minutesOffset}`;
+		}
+
+		function formatNumberWithCommas(number)
+		{
+			return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+		}
+	</script>
+</body>
+
+</html>

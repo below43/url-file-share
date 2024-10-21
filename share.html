@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>URI File Share</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+	<div class="container">
+		<h1>URI File Share</h1>
+		<div class="file-info">
+			<p><b>Filename</b><span id="filename"></span></p>
+			<p><b>File size</b><span id="fileSize"></span></p>
+			<p><b>MIME type</b><span id="fileMimeType"></span></p>
+			<p><b>Date &amp; time</b><span id="uploadDate"></span></p>
+		</div>
+		<div id="filePreview"></div>
+		<p id="fileContent"></p>
+		<p class="small-link-wrap"><a href="index.html" class="small-link">Upload another file</a></p>
+		<footer>
+			<div class="footer-links">
+				Created by Andrew Drake <a href="https://twitter.com/below43" target="_blank">Twitter</a>
+				<a href="https://github.com/below43/uri-file-share" target="_blank">GitHub</a>
+			</div>
+		</footer>
+	</div>
+	<script>
+		function getQueryParam(param)
+		{
+			const urlParams = new URLSearchParams(window.location.search);
+			return urlParams.get(param);
+		}
+
+		function base64ToBlob(base64, mime)
+		{
+			const byteCharacters = atob(base64);
+			const byteNumbers = new Array(byteCharacters.length);
+			for (let i = 0; i < byteCharacters.length; i++)
+			{
+				byteNumbers[i] = byteCharacters.charCodeAt(i);
+			}
+			const byteArray = new Uint8Array(byteNumbers);
+			return new Blob([byteArray], { type: mime });
+		}
+
+		const base64String = getQueryParam('data');
+		const filename = getQueryParam('filename') || 'downloaded_file';
+		const filesize = getQueryParam('filesize') || 'Unknown size';
+		const mimeType = getQueryParam('mimetype') || 'application/octet-stream';
+		const uploadDate = getQueryParam('uploaddate') || 'Unknown date';
+
+		const filenameElement = document.getElementById('filename');
+		const fileSizeElement = document.getElementById('fileSize');
+		const fileMimeTypeElement = document.getElementById('fileMimeType');
+		const uploadDateElement = document.getElementById('uploadDate');
+		const filePreviewElement = document.getElementById('filePreview');
+		const fileContentElement = document.getElementById('fileContent');
+
+		function formatFileSize(bytes)
+		{
+			if (bytes === 0) return '0 Bytes';
+			const k = 1024;
+			const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+			const i = Math.floor(Math.log(bytes) / Math.log(k));
+			const formattedSize = (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+			return formattedSize.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+		}
+
+		if (base64String)
+		{
+			document.title = `URI File Share - ${filename}`; // Update the page title with the filename
+			filenameElement.textContent = filename;
+			fileSizeElement.textContent = formatFileSize(filesize);
+			fileMimeTypeElement.textContent = mimeType;
+			uploadDateElement.textContent = uploadDate;
+
+			const blob = base64ToBlob(base64String, mimeType);
+			const url = URL.createObjectURL(blob);
+
+			// Check if the file is an image
+			if (filename.match(/\.(jpeg|jpg|gif|png)$/))
+			{
+				const imgLink = document.createElement('a');
+				imgLink.href = url;
+				imgLink.target = '_blank';
+
+				const img = document.createElement('img');
+				img.src = url;
+				img.alt = filename;
+				img.style.maxWidth = '200px';
+				img.style.maxHeight = '200px';
+				img.style.border = '1px solid #ccc';
+				img.style.marginBottom = '10px';
+
+				imgLink.appendChild(img);
+				filePreviewElement.appendChild(imgLink);
+			}
+
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = filename;
+			link.textContent = 'Download file';
+			link.className = 'button';
+			fileContentElement.appendChild(link);
+		} else
+		{
+			fileContentElement.textContent = 'No data found.';
+		}
+	</script>
+</body>
+
+</html>
