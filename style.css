@@ -76,15 +76,6 @@ button:hover,
 	word-break: break-all;
 	margin-bottom: 10px;
 	white-space: nowrap;
-	/* Prevent wrapping */
-	user-select: none;
-	/* Standard syntax */
-	-webkit-user-select: none;
-	/* Safari */
-	-moz-user-select: none;
-	/* Firefox */
-	-ms-user-select: none;
-	/* Internet Explorer/Edge */
 }
 
 .link-preview a {
@@ -156,4 +147,10 @@ p.warning {
     font-weight: 400;
     margin-top: 30px;
     color: purple;
+}
+
+p.introtext {
+	font-size: 14px;
+	color: darkgrey;
+	margin-bottom: 20px;
 }

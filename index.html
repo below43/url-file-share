@@ -11,9 +11,9 @@
 <body>
 	<div class="container">
 		<h1>URI File Share</h1>
+		<p class="introtext">Upload a file to generate a shareable URL containing the file encoded in Base64.</p>
 		<input type="file" id="fileInput" onchange="convertFile()">
 		<br>
-		<button id="button-convert-file" onclick="convertFile()">Convert and generate link</button>
 		<p id="linkContainer"></p>
 		<footer>
 			<div class="footer-links">
@@ -32,7 +32,6 @@
 			{
 				// Change cursor to hourglass
 				document.body.style.cursor = 'wait';
-				buttonConvertFile.style.cursor = 'wait';
 
 				const reader = new FileReader();
 				reader.onload = function (event)
@@ -44,7 +43,7 @@
 					const encodedFilesize = encodeURIComponent(file.size);
 
 					const link = `share.html?filename=${encodedFilename}&filesize=${encodedFilesize}&mimetype=${mimeType}&uploaddate=${uploadDate}&data=${encodeURIComponent(base64String)}`;
-					const truncatedLink = link.length > 300 ? link.substring(0, 300) + '... etc...' : link;
+					// const truncatedLink = link.length > 300 ? link.substring(0, 300) + '... etc...' : link;
 					const linkContainer = document.getElementById('linkContainer'); let warningMessage = '';
 
 					// Check if the URL length exceeds the limit (e.g., 2000 characters)
@@ -58,7 +57,7 @@
 					}
 					linkContainer.innerHTML = `
                         <div class="link-preview">
-                            <p class="link-preview-scrollable">${truncatedLink}</p>
+                            <p class="link-preview-scrollable">${link}</p>
                             <br/>
                             <button onclick="copyToClipboard('${link}')">Copy URL</button>
                             <br><br>
@@ -69,7 +68,6 @@
 
 					// Revert cursor back to default
 					document.body.style.cursor = 'default';
-					buttonConvertFile.style.cursor = 'pointer';
 				};
 				reader.readAsDataURL(file);
 			} else

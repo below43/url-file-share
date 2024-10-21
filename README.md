@@ -8,10 +8,8 @@ URI File Share is a simple, client-side web application that allows users to upl
 - Generate a shareable link with the file's metadata.
 - Preview the file if it's an image.
 - Display file metadata such as filename, file size, MIME type, and upload date.
-- Automatically handle large files by generating a Data URL if the URL exceeds 2000 characters.
 - Provide warnings about URL length limitations in different browsers.
 - Copy the generated URL to the clipboard.
-- Upload another file with a simple link.
 
 ## Demo
 A demo is available at [w3.nz](https://w3.nz)
