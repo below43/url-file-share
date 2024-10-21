@@ -42,7 +42,8 @@
 					const encodedFilename = encodeURIComponent(file.name);
 					const encodedFilesize = encodeURIComponent(file.size);
 
-					const link = `share.html?filename=${encodedFilename}&filesize=${encodedFilesize}&mimetype=${mimeType}&uploaddate=${uploadDate}&data=${encodeURIComponent(base64String)}`;
+					const baseUrl = window.location.origin;
+    				const link = `${baseUrl}/share.html?filename=${encodedFilename}&filesize=${encodedFilesize}&mimetype=${mimeType}&uploaddate=${uploadDate}&data=${encodeURIComponent(base64String)}`;
 					// const truncatedLink = link.length > 300 ? link.substring(0, 300) + '... etc...' : link;
 					const linkContainer = document.getElementById('linkContainer'); let warningMessage = '';
 
