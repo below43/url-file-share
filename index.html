@@ -4,13 +4,13 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>URI File Share</title>
+	<title>URL File Share</title>
 	<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 	<div class="container">
-		<h1>URI File Share</h1>
+		<h1>URL File Share</h1>
 		<p class="introtext">Upload a file to generate a shareable URL containing the file encoded in Base64.</p>
 		<input type="file" id="fileInput" onchange="convertFile()">
 		<br>
@@ -42,8 +42,12 @@
 					const encodedFilename = encodeURIComponent(file.name);
 					const encodedFilesize = encodeURIComponent(file.size);
 
-					const baseUrl = window.location.origin;
-    				const link = `${baseUrl}/share.html?filename=${encodedFilename}&filesize=${encodedFilesize}&mimetype=${mimeType}&uploaddate=${uploadDate}&data=${encodeURIComponent(base64String)}`;
+					let baseUrl = window.location.origin; 
+					if (baseUrl.startsWith('file:'))
+					{
+						baseUrl = '.';
+					}
+					const link = `${baseUrl}/share.html?filename=${encodedFilename}&filesize=${encodedFilesize}&mimetype=${mimeType}&uploaddate=${uploadDate}&data=${encodeURIComponent(base64String)}`;
 					// const truncatedLink = link.length > 300 ? link.substring(0, 300) + '... etc...' : link;
 					const linkContainer = document.getElementById('linkContainer'); let warningMessage = '';
 

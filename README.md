@@ -1,6 +1,6 @@
-# URI File Share
+# URL File Share
 
-URI File Share is a simple, client-side web application that allows users to upload a file, convert it to a Base64 string, and generate a shareable link. Since all operations are performed locally in your browser, your files is only ever transferred within the text you copy and share on your devices, ensuring maximum privacy and security.
+URL File Share is a simple, client-side web application that allows users to upload a file, convert it to a Base64 string, and generate a shareable link. Since all operations are performed locally in your browser, your files is only ever transferred within the text you copy and share on your devices, ensuring maximum privacy and security.
 
 ## Features
 

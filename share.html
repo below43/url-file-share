@@ -4,13 +4,14 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>URI File Share</title>
+	<title>URL File Share</title>
 	<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 	<div class="container">
-		<h1>URI File Share</h1>
+		<h1>URL File Share</h1>
+		<p class="introtext">This page retrieves and displays a file shared via a Base64-encoded URL parameter.</p>
 		<div class="file-info">
 			<p><b>Filename</b><span id="filename"></span></p>
 			<p><b>File size</b><span id="fileSize"></span></p>
@@ -71,7 +72,7 @@
 
 		if (base64String)
 		{
-			document.title = `URI File Share - ${filename}`; // Update the page title with the filename
+			document.title = `URL File Share - ${filename}`; // Update the page title with the filename
 			filenameElement.textContent = filename;
 			fileSizeElement.textContent = formatFileSize(filesize);
 			fileMimeTypeElement.textContent = mimeType;
