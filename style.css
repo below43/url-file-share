@@ -15,9 +15,22 @@ body {
 	text-align: center;
 }
 
+.content {
+    text-align: justify;
+    max-width: 1024px;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+
 h1 {
 	color: #4a90e2;
 	margin-bottom: 20px;
+}
+
+h2 {
+	margin-top: 20px;
 }
 
 input[type="file"] {
