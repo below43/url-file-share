@@ -30,10 +30,17 @@
 		</footer>
 	</div>
 	<script>
-		function getQueryParam(param)
+		function getQueryParams()
 		{
-			const urlParams = new URLSearchParams(window.location.search);
-			return urlParams.get(param);
+			const hashParams = new URLSearchParams(window.location.hash.substring(1));
+			const returnParams = {
+				base64String: hashParams.get('data'),
+				filename: hashParams.get('filename') || 'downloaded_file',
+				filesize: hashParams.get('filesize') || 'Unknown size',
+				mimeType: hashParams.get('mimetype') || 'application/octet-stream',
+				uploadDate: hashParams.get('uploaddate') || 'Unknown date'
+			};
+			return returnParams;
 		}
 
 		function base64ToBlob(base64, mime)
@@ -48,11 +55,7 @@
 			return new Blob([byteArray], { type: mime });
 		}
 
-		const base64String = getQueryParam('data');
-		const filename = getQueryParam('filename') || 'downloaded_file';
-		const filesize = getQueryParam('filesize') || 'Unknown size';
-		const mimeType = getQueryParam('mimetype') || 'application/octet-stream';
-		const uploadDate = getQueryParam('uploaddate') || 'Unknown date';
+		const params = getQueryParams();
 
 		const filenameElement = document.getElementById('filename');
 		const fileSizeElement = document.getElementById('fileSize');
@@ -71,19 +74,19 @@
 			return formattedSize.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 		}
 
-		if (base64String)
+		if (params.base64String)
 		{
-			document.title = `URL File Share - ${filename}`; // Update the page title with the filename
-			filenameElement.textContent = filename;
-			fileSizeElement.textContent = formatFileSize(filesize);
-			fileMimeTypeElement.textContent = mimeType;
-			uploadDateElement.textContent = uploadDate;
+			document.title = `URL File Share - ${params.filename}`; // Update the page title with the filename
+			filenameElement.textContent = params.filename;
+			fileSizeElement.textContent = formatFileSize(params.filesize);
+			fileMimeTypeElement.textContent = params.mimeType;
+			uploadDateElement.textContent = params.uploadDate;
 
-			const blob = base64ToBlob(base64String, mimeType);
+			const blob = base64ToBlob(params.base64String, params.mimeType);
 			const url = URL.createObjectURL(blob);
 
 			// Check if the file is an image
-			if (filename.match(/\.(jpeg|jpg|gif|png)$/))
+			if (params.filename.match(/\.(jpeg|jpg|gif|png)$/))
 			{
 				const imgLink = document.createElement('a');
 				imgLink.href = url;
@@ -91,7 +94,7 @@
 
 				const img = document.createElement('img');
 				img.src = url;
-				img.alt = filename;
+				img.alt = params.filename;
 				img.style.maxWidth = '200px';
 				img.style.maxHeight = '200px';
 				img.style.border = '1px solid #ccc';
@@ -103,7 +106,7 @@
 
 			const link = document.createElement('a');
 			link.href = url;
-			link.download = filename;
+			link.download = params.filename;
 			link.textContent = 'Download file';
 			link.className = 'button';
 			fileContentElement.appendChild(link);

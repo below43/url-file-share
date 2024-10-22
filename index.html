@@ -11,21 +11,56 @@
 <body>
 	<div class="container">
 		<h1>URL File Share</h1>
-		<p class="introtext">Upload a file to generate a shareable URL containing the file encoded in Base64.</p>
-		<input type="file" id="fileInput" onchange="convertFile()">
-		<br>
-		<p id="linkContainer"></p>
-		<footer>
-			<div class="footer-links">
-				Created by Andrew Drake <a href="https://twitter.com/below43" target="_blank">Twitter</a>
-				<a href="https://github.com/below43/uri-file-share" target="_blank">GitHub</a>
-				<a href="terms.html">Terms of Service</a>
+		<p class="introtext">Share files securely within copied and pasted Base64-encoded payload. No tracking, no storing of your files.</p>
+		<div id="create-payload">
+			<input type="file" id="fileInput" onchange="convertFile()">
+			<p><a href="#" onclick="pastePayload()" class="small-link">Paste a payload</a></p>
+		</div>
+		<div id="display-payload">
+			<div class="file-info">
+				<p><b>Filename</b><span id="filename"></span></p>
+				<p><b>File size</b><span id="fileSize"></span></p>
+				<p><b>MIME type</b><span id="fileMimeType"></span></p>
+				<p><b>Date &amp; time</b><span id="uploadDate"></span></p>
 			</div>
-		</footer>
+			<p id="linkContainer">
+			<div class="link-preview">
+				<button onclick="copyToClipboard('URL')" id="copy-url">Copy URL</button>
+				<button onclick="copyToClipboard('Payload')" id="copy-payload">Copy Payload</button>
+			</div>
+			</p>
+			<p id="size-warning" class="warning">
+				<b>Warning:</b> The generated URL is too long for some browsers, so you will need to share just the payload instead (which can be pasted back into this site).
+			</p>
+			<div id="filePreview"></div>
+			<p id="fileContent"></p>
+			<p class="small-link-wrap"><a href="#" onclick="reset()" class="small-link">share another file</a></p>
+			<div id="toast"></div>
+			<footer>
+				<div class="footer-links">
+					Created by Andrew Drake <a href="https://twitter.com/below43" target="_blank">Twitter</a>
+					<a href="https://github.com/below43/uri-file-share" target="_blank">GitHub</a>
+					<a href="terms.html">Terms of Service</a>
+					<a href="terms.html#privacy">Privacy</a>
+				</div>
+			</footer>
+		</div>
 	</div>
 	<script>
+		const createPayloadContainer = document.getElementById('create-payload');
+		const displayPayloadContainer = document.getElementById('display-payload');
+		const sizeWarning = document.getElementById('size-warning');
+		const copyUrlButton = document.getElementById('copy-url');
+		const fileInput = document.getElementById('fileInput');
+
+		this.reset();
+
+		//declare the payload variable
+		let payload = '';
 		function convertFile()
 		{
+			sizeWarning.style.display = 'none';
+			copyUrlButton.style.display = 'inline';
 			const fileInput = document.getElementById('fileInput');
 			const buttonConvertFile = document.getElementById('button-convert-file');
 			const file = fileInput.files[0];
@@ -43,37 +78,18 @@
 					const encodedFilename = encodeURIComponent(file.name);
 					const encodedFilesize = encodeURIComponent(file.size);
 
-					let baseUrl = window.location.origin; 
+					let baseUrl = window.location.origin;
 					if (baseUrl.startsWith('file:'))
 					{
 						baseUrl = '.';
 					}
+					this.payload = `#filename=${encodedFilename}&filesize=${encodedFilesize}&mimetype=${mimeType}&uploaddate=${uploadDate}&data=${encodeURIComponent(base64String)}`;
+
 					const link = `${baseUrl}/share.html?filename=${encodedFilename}&filesize=${encodedFilesize}&mimetype=${mimeType}&uploaddate=${uploadDate}&data=${encodeURIComponent(base64String)}`;
-					// const truncatedLink = link.length > 300 ? link.substring(0, 300) + '... etc...' : link;
+					
 					const linkContainer = document.getElementById('linkContainer'); let warningMessage = '';
 
-					// Check if the URL length exceeds the limit (e.g., 2000 characters)
-					if (link.length > 2000000)
-					{
-						warningMessage = `
-							<p class="warning">
-								<b>Warning:</b> The generated URL is ${formatNumberWithCommas(link.length)} characters long which will probably not work in some browsers.
-							</p>
-						`;
-					}
-					linkContainer.innerHTML = `
-                        <div class="link-preview">
-                            <p class="link-preview-scrollable">${link}</p>
-                            <br/>
-                            <button onclick="copyToClipboard('${link}')">Copy URL</button>
-                            <br><br>
-                            <a href="${link}" target="_blank">Preview URL</a>
-                        </div>
-			            ${warningMessage}
-                    `;
-
-					// Revert cursor back to default
-					document.body.style.cursor = 'default';
+					setPayload(this.payload);
 				};
 				reader.readAsDataURL(file);
 			} else
@@ -82,11 +98,20 @@
 			}
 		}
 
-		function copyToClipboard(text)
+		function copyToClipboard(type)
 		{
+			let text = '';
+			if (type === 'URL')
+			{
+				text = window.location.href;
+			}
+			else if (type === 'Payload')
+			{
+				text = `${this.payload}`;
+			}
 			navigator.clipboard.writeText(text).then(() =>
 			{
-				alert('URL copied to clipboard');
+				showToast(`${type} copied!`);
 			}).catch(err =>
 			{
 				console.error('Could not copy text: ', err);
@@ -108,6 +133,61 @@
 		function formatNumberWithCommas(number)
 		{
 			return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+		}
+
+		function showToast(message)
+		{
+			const toast = document.getElementById('toast');
+			toast.textContent = message;
+			toast.className = 'show';
+			setTimeout(() =>
+			{
+				toast.className = toast.className.replace('show', '');
+			}, 3000);
+		}
+
+		function reset()
+		{
+			this.payload = '';
+
+			createPayloadContainer.style.display = 'inline';
+			displayPayloadContainer.style.display = 'none';
+			sizeWarning.style.display = 'none';
+			fileInput.value = '';
+		}
+
+		function pastePayload()
+		{
+			//prompt for payload
+			const pastedPayload = prompt("Paste a payload that was generated from this app");
+
+			if (pastedPayload)
+			{
+				setPayload(payload);
+			}
+		}
+
+		function setPayload(payload)
+		{
+			this.payload = payload;
+			// Update the display with the file information
+			createPayloadContainer.style.display = 'none';
+			displayPayloadContainer.style.display = 'inline';
+
+			// Revert cursor back to default
+			document.body.style.cursor = 'default';
+
+			// Check if the URL length exceeds the limit (e.g., 2000 characters)
+			if (payload.length > 2000000)
+			{
+				sizeWarning.style.display = 'block';
+				copyUrlButton.style.display = 'none';
+			}
+			else
+			{
+				// Update the URL in the browser address bar
+				history.pushState(null, '', `${window.location.origin}${window.location.pathname}${payload}`);
+			}
 		}
 	</script>
 </body>
