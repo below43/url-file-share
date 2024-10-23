@@ -12,7 +12,7 @@ URL File Share is a simple, client-side web application that allows users to upl
 - Copy the generated URL to the clipboard.
 
 ## Demo
-A demo is available at [w3.nz](https://w3.nz)
+A demo is available at [urlfile.app](https://urlfile.app)
 
 ## Getting Started
 

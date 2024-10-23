@@ -11,7 +11,7 @@
 <body>
 	<div class="container">
 		<h1>URL File Share</h1>
-		<p class="introtext">Share files securely within copied and pasted Base64-encoded payload. No tracking, no storing of your files.</p>
+		<p class="introtext">Share URLs containing Base64-encoded files.<br />No tracking, no storing of your files.</p>
 		<div id="create-payload">
 			<input type="file" id="fileInput" onchange="convertFile()">
 			<p><a href="#" onclick="pastePayload()" class="small-link">Paste a payload</a></p>
@@ -23,44 +23,45 @@
 				<p><b>MIME type</b><span id="fileMimeType"></span></p>
 				<p><b>Date &amp; time</b><span id="uploadDate"></span></p>
 			</div>
-			<p id="linkContainer">
+			<div id="filePreview"></div>
+			<p id="fileContent"></p>
 			<div class="link-preview">
-				<button onclick="copyToClipboard('URL')" id="copy-url">Copy URL</button>
-				<button onclick="copyToClipboard('Payload')" id="copy-payload">Copy Payload</button>
+				<button onclick="share()" id="share">Share this file</button>
 			</div>
 			</p>
 			<p id="size-warning" class="warning">
-				<b>Warning:</b> The generated URL is too long for some browsers, so you will need to share just the payload instead (which can be pasted back into this site).
+				<b>Warning:</b> The payload is too long to include in the URL, so you will need to share the payload instead (which can be pasted back into this site).
 			</p>
-			<div id="filePreview"></div>
-			<p id="fileContent"></p>
 			<p class="small-link-wrap"><a href="#" onclick="reset()" class="small-link">share another file</a></p>
 			<div id="toast"></div>
-			<footer>
-				<div class="footer-links">
-					Created by Andrew Drake <a href="https://twitter.com/below43" target="_blank">Twitter</a>
-					<a href="https://github.com/below43/uri-file-share" target="_blank">GitHub</a>
-					<a href="terms.html">Terms of Service</a>
-					<a href="terms.html#privacy">Privacy</a>
-				</div>
-			</footer>
 		</div>
+		<footer>
+			<div class="footer-links">
+				Created by Andrew Drake 
+				<a href="https://github.com/below43/uri-file-share" target="_blank">GitHub</a>
+				<a href="#terms" onclick="showTermsOfService()">Terms of Service</a>
+				<a href="#privacy" onclick="showPrivacyPolicy()">Privacy</a>
+			</div>
+		</footer>
 	</div>
 	<script>
 		const createPayloadContainer = document.getElementById('create-payload');
 		const displayPayloadContainer = document.getElementById('display-payload');
+		const filePreviewElement = document.getElementById('filePreview');
+		const fileContentElement = document.getElementById('fileContent');
 		const sizeWarning = document.getElementById('size-warning');
-		const copyUrlButton = document.getElementById('copy-url');
+		// const copyUrlButton = document.getElementById('copy-url');
 		const fileInput = document.getElementById('fileInput');
 
 		this.reset();
 
-		//declare the payload variable
-		let payload = '';
+		//see if there's a payload in the URL
+		loadPayloadFromUrl();
+
 		function convertFile()
 		{
 			sizeWarning.style.display = 'none';
-			copyUrlButton.style.display = 'inline';
+			// copyUrlButton.style.display = 'inline';
 			const fileInput = document.getElementById('fileInput');
 			const buttonConvertFile = document.getElementById('button-convert-file');
 			const file = fileInput.files[0];
@@ -83,10 +84,10 @@
 					{
 						baseUrl = '.';
 					}
-					this.payload = `#filename=${encodedFilename}&filesize=${encodedFilesize}&mimetype=${mimeType}&uploaddate=${uploadDate}&data=${encodeURIComponent(base64String)}`;
+					this.payload = `filename=${encodedFilename}&filesize=${encodedFilesize}&mimetype=${mimeType}&uploaddate=${uploadDate}&data=${encodeURIComponent(base64String)}`;
 
-					const link = `${baseUrl}/share.html?filename=${encodedFilename}&filesize=${encodedFilesize}&mimetype=${mimeType}&uploaddate=${uploadDate}&data=${encodeURIComponent(base64String)}`;
-					
+					const link = `${baseUrl}/#share.html?filename=${encodedFilename}&filesize=${encodedFilesize}&mimetype=${mimeType}&uploaddate=${uploadDate}&data=${encodeURIComponent(base64String)}`;
+
 					const linkContainer = document.getElementById('linkContainer'); let warningMessage = '';
 
 					setPayload(this.payload);
@@ -95,6 +96,40 @@
 			} else
 			{
 				alert('Please select a file first.');
+			}
+		}
+
+		function share()
+		{
+			if (!("share" in navigator) ||
+				payload.length > 2000000)
+			{
+				copy();
+				return;
+			}
+
+			let baseUrl = `${window.location.origin}${window.location.pathname}`;
+			let shareData = {
+				title: `URL File Share: ${this.params.filename}`,
+				//show some text about this site and include the filename, params.filename
+				text: `The following URL contains a Base64-encoded file: ${this.params.filename}`,
+				url: `${baseUrl}#${payload}`
+			}
+
+			navigator.share(shareData)
+				.then(() => console.log('Successful share'))
+				.catch(error => console.log('Error sharing:', error));
+		}
+
+		function copy()
+		{
+			if (payload.length > 2000000)
+			{
+				this.copyToClipboard('Payload');
+			}
+			else
+			{
+				this.copyToClipboard('URL');
 			}
 		}
 
@@ -108,6 +143,12 @@
 			else if (type === 'Payload')
 			{
 				text = `${this.payload}`;
+			}
+			if (type === 'Payload')
+			{
+				//get the domain/base url
+				const baseUrl = `${window.location.origin}${window.location.pathname}`;
+				alert(`Because of the length of the file, only the payload will be copied for sharing. Navigate to ${baseUrl} and paste the payload.`);
 			}
 			navigator.clipboard.writeText(text).then(() =>
 			{
@@ -154,6 +195,8 @@
 			displayPayloadContainer.style.display = 'none';
 			sizeWarning.style.display = 'none';
 			fileInput.value = '';
+			filePreviewElement.innerHTML = '';
+			fileContentElement.innerHTML = '';
 		}
 
 		function pastePayload()
@@ -163,16 +206,29 @@
 
 			if (pastedPayload)
 			{
-				setPayload(payload);
+				try
+				{
+					this.payload = pastedPayload;
+					var params = getQueryParamsFromPayload(pastedPayload);
+					displayFileDetails(params);
+				}
+				catch (e)
+				{
+					console.error(e);
+				}
 			}
+		}
+
+		function showFileDetailsContainer()
+		{
+			// Update the display with the file information
+			createPayloadContainer.style.display = 'none';
+			displayPayloadContainer.style.display = 'inline';
 		}
 
 		function setPayload(payload)
 		{
 			this.payload = payload;
-			// Update the display with the file information
-			createPayloadContainer.style.display = 'none';
-			displayPayloadContainer.style.display = 'inline';
 
 			// Revert cursor back to default
 			document.body.style.cursor = 'default';
@@ -181,15 +237,162 @@
 			if (payload.length > 2000000)
 			{
 				sizeWarning.style.display = 'block';
-				copyUrlButton.style.display = 'none';
 			}
 			else
 			{
 				// Update the URL in the browser address bar
-				history.pushState(null, '', `${window.location.origin}${window.location.pathname}${payload}`);
+				history.pushState(null, '', `${window.location.origin}${window.location.pathname}#${payload}`);
+			}
+
+			var params = getQueryParamsFromPayload(payload);
+			displayFileDetails(params);
+		}
+
+		let params = '';
+		function displayFileDetails(params)
+		{
+			this.params = '';
+			this.showFileDetailsContainer();
+
+			const filenameElement = document.getElementById('filename');
+			const fileSizeElement = document.getElementById('fileSize');
+			const fileMimeTypeElement = document.getElementById('fileMimeType');
+			const uploadDateElement = document.getElementById('uploadDate');
+			if (params.base64String)
+			{
+				this.params = params;
+
+				document.title = `URL File Share - ${params.filename}`; // Update the page title with the filename
+				filenameElement.textContent = params.filename;
+				fileSizeElement.textContent = formatFileSize(params.filesize);
+				fileMimeTypeElement.textContent = params.mimeType;
+				uploadDateElement.textContent = params.uploadDate;
+
+				const blob = base64ToBlob(params.base64String, params.mimeType);
+				const url = URL.createObjectURL(blob);
+
+				// Check if the file is an image
+				if (params.filename.match(/\.(jpeg|jpg|gif|png)$/))
+				{
+					const imgLink = document.createElement('a');
+					imgLink.href = url;
+					imgLink.target = '_blank';
+
+					const img = document.createElement('img');
+					img.src = url;
+					img.alt = params.filename;
+					img.style.maxWidth = '200px';
+					img.style.maxHeight = '200px';
+					img.style.border = '1px solid #ccc';
+					img.style.marginBottom = '10px';
+
+					imgLink.appendChild(img);
+					filePreviewElement.appendChild(imgLink);
+				}
+
+				const link = document.createElement('a');
+				link.href = url;
+				link.download = params.filename;
+				link.textContent = 'Download file';
+				link.className = 'button';
+				fileContentElement.appendChild(link);
+			} else
+			{
+				fileContentElement.textContent = 'No data found.';
 			}
 		}
+
+		function loadPayloadFromUrl()
+		{
+			if (!window?.location?.hash)
+			{
+				return;
+			}
+			else
+			{
+				try
+				{
+					const payload = window.location.hash.substring(1);
+					if (!payload) return;
+
+					if (payload == 'privacy') {
+						showPrivacyPolicy();
+						return;
+					}
+					else if (payload == 'terms') {
+						showTermsOfService();
+						return;
+					}
+
+					this.payload = payload;
+					this.showFileDetailsContainer();
+					var params = this.getQueryParamsFromPayload(payload);
+					this.displayFileDetails(params);
+				}
+				catch (e)
+				{
+					console.error(e);
+				}
+			}
+		}
+
+		function getQueryParamsFromPayload(payload)
+		{
+			try
+			{
+				console.log(payload);
+				const hashParams = new URLSearchParams(payload);
+
+				const returnParams = {
+					base64String: hashParams.get('data'),
+					filename: hashParams.get('filename') || 'downloaded_file',
+					filesize: hashParams.get('filesize') || 'Unknown size',
+					mimeType: hashParams.get('mimetype') || 'application/octet-stream',
+					uploadDate: hashParams.get('uploaddate') || 'Unknown date'
+				};
+				return returnParams;
+			}
+			catch (e)
+			{
+				console.error(e);
+				return null;
+			}
+		}
+
+		function base64ToBlob(base64, mime)
+		{
+			const byteCharacters = atob(base64);
+			const byteNumbers = new Array(byteCharacters.length);
+			for (let i = 0; i < byteCharacters.length; i++)
+			{
+				byteNumbers[i] = byteCharacters.charCodeAt(i);
+			}
+			const byteArray = new Uint8Array(byteNumbers);
+			return new Blob([byteArray], { type: mime });
+		}
+
+		function formatFileSize(bytes)
+		{
+			if (bytes === 0) return '0 Bytes';
+			const k = 1024;
+			const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+			const i = Math.floor(Math.log(bytes) / Math.log(k));
+			const formattedSize = (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+			return formattedSize.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+		}
+
+		function showPrivacyPolicy()
+		{
+			alert('Privacy Policy: This site does not store any data. It does not track you. It does not use cookies. It does not use analytics. It does not use any third-party services.');
+		}
+
+		function showTermsOfService()
+		{
+			alert('Terms of Service: This site is provided as-is. No guarantees are made about the availability or functionality of this site. Use at your own risk.');
+		}
 	</script>
+
+
 </body>
 
 </html>
