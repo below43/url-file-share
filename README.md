@@ -24,7 +24,7 @@ A demo is available at [urlfile.app](https://urlfile.app)
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/andrewdrake/uri-file-share.git
+   git clone https://github.com/below43/url-file-share.git
 
 
 ## Contributing
@@ -35,4 +35,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 - Created by [Andrew Drake](https://x.com/below43)
-- [Project Homepage](https://github.com/andrewdrake/uri-file-share)
+- [Project Homepage](https://github.com/below43/url-file-share)
