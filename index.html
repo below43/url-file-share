@@ -37,7 +37,7 @@
 		</div>
 		<footer>
 			<div class="footer-links">
-				Created by Andrew Drake 
+				Created by Andrew Drake
 				<a href="https://github.com/below43/uri-file-share" target="_blank">GitHub</a>
 				<a href="#terms" onclick="showTermsOfService()">Terms of Service</a>
 				<a href="#privacy" onclick="showPrivacyPolicy()">Privacy</a>
@@ -100,28 +100,6 @@
 		}
 
 		function share()
-		{
-			if (!("share" in navigator) ||
-				payload.length > 2000000)
-			{
-				copy();
-				return;
-			}
-
-			let baseUrl = `${window.location.origin}${window.location.pathname}`;
-			let shareData = {
-				title: `URL File Share: ${this.params.filename}`,
-				//show some text about this site and include the filename, params.filename
-				text: `The following URL contains a Base64-encoded file: ${this.params.filename}`,
-				url: `${baseUrl}#${payload}`
-			}
-
-			navigator.share(shareData)
-				.then(() => console.log('Successful share'))
-				.catch(error => console.log('Error sharing:', error));
-		}
-
-		function copy()
 		{
 			if (payload.length > 2000000)
 			{
@@ -315,11 +293,13 @@
 					const payload = window.location.hash.substring(1);
 					if (!payload) return;
 
-					if (payload == 'privacy') {
+					if (payload == 'privacy')
+					{
 						showPrivacyPolicy();
 						return;
 					}
-					else if (payload == 'terms') {
+					else if (payload == 'terms')
+					{
 						showTermsOfService();
 						return;
 					}
