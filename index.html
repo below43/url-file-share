@@ -6,6 +6,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>URL File - share files embedded within URLs</title>
 	<link rel="stylesheet" href="style.css">
+	<link rel="manifest" href="manifest.json">    
+	<link rel="icon" href="icon.png" type="image/png">
 </head>
 
 <body>
@@ -25,7 +27,7 @@
 				<p id="fileContent"></p>
 			</div>
 			<div class="link-preview">
-				<button onclick="share()" id="share" class="button-solid">Copy URL + payload</button><br/><br/>
+				<button onclick="share()" id="share" class="button-solid">Copy URL + payload</button><br /><br />
 				<a href="#" onclick="copyPayload(event)" class="small-link">Copy payload</a>
 			</div>
 			</p>
@@ -376,6 +378,19 @@
 		function showTermsOfService()
 		{
 			alert('Terms of Service: This service is provided "as is" without any warranties, express or implied. Use of this service is at your own risk. The service provider does not guarantee the availability, accuracy, or functionality of the service. Users must not use this service for any illegal or unauthorized purposes.');
+		}
+
+		if ('serviceWorker' in navigator)
+		{
+			navigator.serviceWorker.register('/service-worker.js')
+				.then(registration =>
+				{
+					console.log('ServiceWorker registration successful with scope: ', registration.scope);
+				})
+				.catch(error =>
+				{
+					console.log('ServiceWorker registration failed: ', error);
+				});
 		}
 	</script>
 
