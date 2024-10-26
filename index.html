@@ -4,14 +4,14 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>URL File Share</title>
+	<title>URL File - share files embedded within URLs</title>
 	<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 	<div class="container">
-		<h1>URL File Share</h1>
-		<p class="introtext">Share URLs containing Base64-encoded files.<br />No tracking, no storing of your files.</p>
+		<h1>URL File</h1>
+		<p class="introtext">Share URLs containing Base64-encoded files.<br />Fully client-side. Your files are not stored on any server.</p>
 		<div id="create-payload">
 			<input type="file" id="fileInput" onchange="convertFile()">
 			<p><a href="#" onclick="pastePayload()" class="small-link">Paste a payload</a></p>
@@ -22,23 +22,25 @@
 				<p><b>File size</b><span id="fileSize"></span></p>
 				<p><b>MIME type</b><span id="fileMimeType"></span></p>
 				<p><b>Date &amp; time</b><span id="uploadDate"></span></p>
+				<div id="filePreview"></div>
+				<p id="fileContent"></p>
 			</div>
-			<div id="filePreview"></div>
-			<p id="fileContent"></p>
 			<div class="link-preview">
-				<button onclick="share()" id="share">Share this file</button>
+				<button onclick="share()" id="share" class="button-solid">Copy URL + payload</button><br/><br/>
+				<a onclick="copyPayload(event)" class="small-link">Copy payload</a>
 			</div>
 			</p>
 			<p id="size-warning" class="warning">
-				<b>Warning:</b> The payload is too long to include in the URL, so you will need to share the payload instead (which can be pasted back into this site).
+				<b>Warning:</b> The file is large, so the URL probably won't work for most browsers. You could just copy the payload instead (this can be reloaded on this app).
 			</p>
-			<p class="small-link-wrap"><a href="#" onclick="reset()" class="small-link">share another file</a></p>
+
 			<div id="toast"></div>
 		</div>
 		<footer>
 			<div class="footer-links">
 				Created by Andrew Drake
-				<a href="https://github.com/below43/uri-file-share" target="_blank">GitHub</a>
+				<a href="#" onclick="reset(event)" class="small-link">Share a file</a>
+				<a href="#" onclick="pastePayload(event)" class="small-link">Paste a payload</a>
 				<a href="#terms" onclick="showTermsOfService()">Terms of Service</a>
 				<a href="#privacy" onclick="showPrivacyPolicy()">Privacy</a>
 			</div>
@@ -50,7 +52,6 @@
 		const filePreviewElement = document.getElementById('filePreview');
 		const fileContentElement = document.getElementById('fileContent');
 		const sizeWarning = document.getElementById('size-warning');
-		// const copyUrlButton = document.getElementById('copy-url');
 		const fileInput = document.getElementById('fileInput');
 
 		this.reset();
@@ -61,7 +62,6 @@
 		function convertFile()
 		{
 			sizeWarning.style.display = 'none';
-			// copyUrlButton.style.display = 'inline';
 			const fileInput = document.getElementById('fileInput');
 			const buttonConvertFile = document.getElementById('button-convert-file');
 			const file = fileInput.files[0];
@@ -101,14 +101,17 @@
 
 		function share()
 		{
-			if (payload.length > 2000000)
+			this.copyToClipboard('URL');
+		}
+
+		function copyPayload(event)
+		{
+			if (event)
 			{
-				this.copyToClipboard('Payload');
+				event.preventDefault();
 			}
-			else
-			{
-				this.copyToClipboard('URL');
-			}
+			this.copyToClipboard('Payload');
+			return;
 		}
 
 		function copyToClipboard(type)
@@ -122,12 +125,7 @@
 			{
 				text = `${this.payload}`;
 			}
-			if (type === 'Payload')
-			{
-				//get the domain/base url
-				const baseUrl = `${window.location.origin}${window.location.pathname}`;
-				alert(`Because of the length of the file, only the payload will be copied for sharing. Navigate to ${baseUrl} and paste the payload.`);
-			}
+
 			navigator.clipboard.writeText(text).then(() =>
 			{
 				showToast(`${type} copied!`);
@@ -165,8 +163,12 @@
 			}, 3000);
 		}
 
-		function reset()
+		function reset(event)
 		{
+			if (event)
+			{
+				event.preventDefault();
+			}
 			this.payload = '';
 
 			createPayloadContainer.style.display = 'inline';
@@ -175,10 +177,17 @@
 			fileInput.value = '';
 			filePreviewElement.innerHTML = '';
 			fileContentElement.innerHTML = '';
+
+			//set the url back to the base url
+			history.pushState(null, '', `${window.location.origin}${window.location.pathname}`);
 		}
 
-		function pastePayload()
+		function pastePayload(event)
 		{
+			if (event)
+			{
+				event.preventDefault();
+			}
 			//prompt for payload
 			const pastedPayload = prompt("Paste a payload that was generated from this app");
 
@@ -216,11 +225,9 @@
 			{
 				sizeWarning.style.display = 'block';
 			}
-			else
-			{
-				// Update the URL in the browser address bar
-				history.pushState(null, '', `${window.location.origin}${window.location.pathname}#${payload}`);
-			}
+
+			// Update the URL in the browser address bar
+			history.pushState(null, '', `${window.location.origin}${window.location.pathname}#${payload}`);
 
 			var params = getQueryParamsFromPayload(payload);
 			displayFileDetails(params);
@@ -271,8 +278,8 @@
 				const link = document.createElement('a');
 				link.href = url;
 				link.download = params.filename;
-				link.textContent = 'Download file';
-				link.className = 'button';
+				link.textContent = 'Download this file';
+				link.className = 'button button-outline download-button';
 				fileContentElement.appendChild(link);
 			} else
 			{
@@ -368,7 +375,7 @@
 
 		function showTermsOfService()
 		{
-			alert('Terms of Service: This site is provided as-is. No guarantees are made about the availability or functionality of this site. Use at your own risk.');
+			alert('Terms of Service: This service is provided "as is" without any warranties, express or implied. Use of this service is at your own risk. The service provider does not guarantee the availability, accuracy, or functionality of the service. Users must not use this service for any illegal or unauthorized purposes.');
 		}
 	</script>
 
