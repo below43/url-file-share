@@ -14,7 +14,6 @@
 		<p class="introtext">Share URLs containing Base64-encoded files.<br />Fully client-side. Your files are not stored on any server.</p>
 		<div id="create-payload">
 			<input type="file" id="fileInput" onchange="convertFile()">
-			<p><a href="#" onclick="pastePayload()" class="small-link">Paste a payload</a></p>
 		</div>
 		<div id="display-payload">
 			<div class="file-info">
@@ -278,7 +277,7 @@
 				const link = document.createElement('a');
 				link.href = url;
 				link.download = params.filename;
-				link.textContent = 'Download this file';
+				link.innerHTML = '⬇ &nbsp;Download this file';
 				link.className = 'button button-outline download-button';
 				fileContentElement.appendChild(link);
 			} else
