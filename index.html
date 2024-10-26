@@ -194,6 +194,7 @@
 			{
 				try
 				{
+					this.reset();
 					this.payload = pastedPayload;
 					var params = getQueryParamsFromPayload(pastedPayload);
 					displayFileDetails(params);
