@@ -1,6 +1,6 @@
 {
-	"name": "URL File Share",
-	"short_name": "URL File Share",
+	"name": "URL File",
+	"short_name": "URL File",
 	"description": "A simple, client-side web application to upload files, convert them to Base64, and generate shareable links.",
 	"start_url": "/",
 	"display": "standalone",
