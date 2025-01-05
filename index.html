@@ -11,13 +11,18 @@
 </head>
 
 <body>
+	<div id="loading"></div>
 	<div class="container">
 		<h1>URL File</h1>
-		<p class="introtext">Share URLs containing Base64-encoded files.<br />Fully client-side. Your files are not stored on any server.<br /><em>Works best with small files</em></p>
+		<p class="introtext">Share URLs containing Base64-encoded files.<br />Fully client-side. Your files are not stored on any server.</p>
 		<div id="create-payload">
 			<input type="file" id="fileInput" onchange="convertFile()">
-
-			<p class="note">Note: If you clicked a file share link, and there's no file showing here, the browser may have stripped the query string. Try pasting the URL/payload instead.</p>
+			<p><em>Note: this works best with small files</em></p>
+		</div>
+		<div id="payload-error" class="note">
+			<b>Error: Unable to load file</b><br /><br />
+			This normally occurs with larger files, when the browser truncates the query string. You may want to paste the URL + payload instead.<br /><br />
+			<button onclick="pastePayload(event)" class="button-solid">Paste the URL + Payload</button>
 		</div>
 		<div id="display-payload">
 			<div class="file-info">
@@ -29,65 +34,78 @@
 				<p id="fileContent"></p>
 			</div>
 			<div class="link-preview">
-				<button onclick="share()" id="share" class="button-solid">Copy URL + payload</button><br /><br />
-				<a href="#" onclick="copyPayload(event)" class="small-link">Copy payload</a>
+				<button onclick="share()" id="share" class="button-solid">Copy URL + Payload</button>
+				<!-- <br /><br />
+				<a href="#" onclick="copyPayload(event)" class="small-link">Copy payload</a> -->
 			</div>
 			</p>
 			<p id="size-warning" class="note">
-				<b>Warning:</b> The file is large, so the URL might not work for most browsers. You could just copy the payload instead.
+				<b>Warning:</b> The file is large, so some browsers may end up truncating the query string. You may need to paste the URL + payload at the other end to retrieve the file.
 			</p>
 
 		</div>
 		<div id="toast"></div>
 		<footer>
 			<div class="footer-links">
-				Created by Andrew Drake
 				<a href="#" onclick="reset(event)" class="small-link">Share a file</a>
-				<a href="#" onclick="pastePayload(event)" class="small-link">Paste a payload</a>
-				<a href="#terms" onclick="showTermsOfService()">Terms of Service</a>
-				<a href="#privacy" onclick="showPrivacyPolicy()">Privacy</a>
+				<a href="#" onclick="pastePayload(event)" class="small-link">Paste URL + Payload</a>
+				<a href="#about" onclick="showModal(event, 'about')" class="small-link">About</a>
+				<a href="#terms" onclick="showModal(event, 'terms')">Terms & privacy</a>
 			</div>
+			<p style="margin-top: 20px; font-size: 12px;">made by <a href="https://andrew.drake.nz" style="color: #666;">andrew.drake.nz</a></p>
 		</footer>
 	</div>
+
 	<script>
 		const createPayloadContainer = document.getElementById('create-payload');
 		const displayPayloadContainer = document.getElementById('display-payload');
+		const payloadError = document.getElementById('payload-error');
 		const filePreviewElement = document.getElementById('filePreview');
 		const fileContentElement = document.getElementById('fileContent');
 		const sizeWarning = document.getElementById('size-warning');
 		const fileInput = document.getElementById('fileInput');
-
+		const loading = document.getElementById('loading');
 
 		//see if there's a payload in the URL
 		loadPayloadFromUrl();
 
 		function convertFile()
 		{
+			loading.style.display = 'block';
 			sizeWarning.style.display = 'none';
 			const fileInput = document.getElementById('fileInput');
 			const buttonConvertFile = document.getElementById('button-convert-file');
 			const file = fileInput.files[0];
 			if (file)
 			{
-				// Change cursor to hourglass
-				document.body.style.cursor = 'wait';
-
 				const reader = new FileReader();
 
 				reader.onload = function (event)
 				{
-					const base64String = event.target.result.split(',')[1];
-					const params = {
-						filename: file.name,
-						filesize: file.size,
-						mimetype: file.type,
-						uploaddate: getLocalIsoTimestamp(),
-						data: base64String
-					};
+					try
+					{
+						const base64String = event.target.result.split(',')[1];
+						const params = {
+							filename: file.name,
+							filesize: file.size,
+							mimetype: file.type,
+							uploaddate: getLocalIsoTimestamp(),
+							data: base64String
+						};
 
-					this.payload = encodePayload(params);
+						this.payload = encodePayload(params);
 
-					setPayload(this.payload);
+						setPayload(this.payload);
+					}
+					catch (e)
+					{
+						console.error('Failed to convert file:', e);
+						alert('Failed to convert file. Please try again.');
+					}
+					finally
+					{
+						loading.style.display = 'none';
+					}
 				};
 				reader.readAsDataURL(file);
 			} else
@@ -112,7 +130,8 @@
 			try
 			{
 				return JSON.parse(atob(encodedPayload));
-			} catch (e)
+			}
+			catch (e)
 			{
 				console.error('Failed to decode payload:', e);
 				return null;
@@ -204,6 +223,7 @@
 
 			createPayloadContainer.style.display = 'inline';
 			displayPayloadContainer.style.display = 'none';
+			payloadError.style.display = 'none';
 			sizeWarning.style.display = 'none';
 			fileInput.value = '';
 			filePreviewElement.innerHTML = '';
@@ -223,18 +243,24 @@
 				event.preventDefault();
 			}
 			//prompt for payload
-			let pastedPayload = prompt("Paste a payload that was generated from this app");
+			let pastedPayload = prompt("Paste a URL+payload that was generated from this app");
 
 			if (pastedPayload)
 			{
 				try
 				{
-					if (pastedPayload.startsWith('#'))
+					if (pastedPayload.includes('#')) 
 					{
-						pastedPayload = pastedPayload.substring(1);
+						pastedPayload = pastedPayload.substring(pastedPayload.indexOf('#') + 1);
 					}
 					this.payload = pastedPayload;
 					var params = getQueryParamsFromPayload(pastedPayload);
+					if (!params)
+					{
+						displayPayloadContainer.style.display = 'none';
+						alert('Sorry, unable to parse that URL + Payload');
+						return;
+					}
 					displayFileDetails(params);
 				}
 				catch (e)
@@ -249,6 +275,7 @@
 			// Update the display with the file information
 			createPayloadContainer.style.display = 'none';
 			displayPayloadContainer.style.display = 'inline';
+			payloadError.style.display = 'none';
 		}
 
 		function setPayload(payload)
@@ -279,6 +306,7 @@
 			const uploadDateElement = document.getElementById('uploadDate');
 			if (params.base64String)
 			{
+				fileContentElement.innerHTML = '';
 				this.params = params;
 
 				document.title = `URL File Share - ${params.filename}`; // Update the page title with the filename
@@ -333,28 +361,30 @@
 				try
 				{
 					const payload = window.location.hash.substring(1);
-					if (!payload) {
+					if (!payload)
+					{
 						this.reset(null, false);
 						return;
 					}
 
 					if (payload == 'privacy')
 					{
-						showPrivacyPolicy();
+						showModal(null, 'privacy');
 						return;
 					}
 					else if (payload == 'terms')
 					{
-						showTermsOfService();
+						showModal(null, 'terms');
 						return;
 					}
 
 					this.payload = payload;
 					this.showFileDetailsContainer();
 					var params = this.getQueryParamsFromPayload(payload);
-					if (!params) {
-						displayPayloadContainer.style.display = 'inline';
-						displayPayloadContainer.innerHTML = '<div class="note"><b>Error: Invalid or corrupted payload</b><br/><br/>The payload couldn\'t be loaded - probably due to the browser truncating the query string. Try pasting the payload instead.</div>';
+					if (!params)
+					{
+						displayPayloadContainer.style.display = 'none';
+						payloadError.style.display = 'block';
 						return;
 					}
 					this.displayFileDetails(params);
@@ -409,14 +439,27 @@
 			return formattedSize.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 		}
 
-		function showPrivacyPolicy()
+		function showModal(event, modalId)
 		{
-			alert('Privacy Policy: This site does not store any data. It does not track you. It does not use cookies. It does not use analytics. It does not use any third-party services.');
+			if (event)
+			{
+				event.preventDefault();
+			}
+			document.getElementById(modalId).style.display = 'block';
 		}
 
-		function showTermsOfService()
+		function closeModal(modalId)
 		{
-			alert('Terms of Service: This service is provided "as is" without any warranties, express or implied. Use of this service is at your own risk. The service provider does not guarantee the availability, accuracy, or functionality of the service. Users must not use this service for any illegal or unauthorized purposes.');
+			document.getElementById(modalId).style.display = 'none';
+		}
+
+		function handleModalClick(event, modalId)
+		{
+			// If clicking the backdrop (not the modal content), close the modal
+			if (event.target.classList.contains('modal'))
+			{
+				closeModal(modalId);
+			}
 		}
 
 		if ('serviceWorker' in navigator)
@@ -433,7 +476,39 @@
 		}
 	</script>
 
+	<div id="terms" class="modal" onclick="handleModalClick(event, 'terms')">
+		<div class="modal-content">
+			<h3>Terms of Service</h3>
+			<div class="modal-body">
+				<p>This service is provided "as is" without any warranties, express or implied. Use of this service is at your own risk. The service provider does not guarantee the availability, accuracy, or functionality of the service.</p>
+				<p>Users must not use this service for any illegal or unauthorized purposes.</p>
+			</div>
+			<h3>Privacy Policy</h3>
+			<div class="modal-body">
+				<p>We respect your privacy. None of your data is stored or tracked. No files are saved on a server. Cloudflare Web Analytics record privacy-first anonymous usage data.</p>
+			</div>
+			<div class="modal-buttons">
+				<button onclick="closeModal('terms')" class="button-outline">Close</button>
+			</div>
+		</div>
+	</div>
 
+	<div id="about" class="modal" onclick="handleModalClick(event, 'about')">
+		<div class="modal-content">
+			<h2>About</h2>
+			<div class="modal-body">
+				<p>I use multiple machines with a shared keyboard and mouse (I use <a href="https://github.com/input-leap/input-leap" nofollow="nofollow" target="_blank">InputLeap</a>). I created this tool so that I could easily transfer files from one machine to another using a shared clipboard. This works equally well pasting into a chat or an email, but may meet varying degrees of success depending on the transport mechanism.</p>
+				<p>To an extent, this is an academic exercise: to show that a file can be transported via a URL. However, I do find it jolly useful for small file transfers. Coupled with Edge's QR code generator, it's fairly handy for getting a small file onto a mobile.</p>
+				<p>Because the payload is transported via the # fragment, theoretically the payload is only loaded local to the client, and not sent to the server.</p>
+				<p>Suffice to say, this is completely useless for larger files, though it's fun to see what each brower's limit is...</p>
+				<p>Made with a bit of help from GitHub Copilot</p>
+				<p>&copy; <a href="https://andrew.drake.nz" style="text-decoration: none;">Andrew Drake</a>  2025</p>
+			</div>
+			<div class="modal-buttons">
+				<button onclick="closeModal('about')" class="button-outline">Close</button>
+			</div>
+		</div>
+	</div>
 </body>
 
 </html>
