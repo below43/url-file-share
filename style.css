@@ -192,7 +192,8 @@ p.introtext {
 #toast {
 	visibility: hidden;
 	min-width: 250px;
-	margin-left: -125px;
+	width: 300px;
+	margin-left: -150px; /* Adjusted to center horizontally */
 	background-color: #333;
 	color: #fff;
 	text-align: center;
@@ -202,7 +203,8 @@ p.introtext {
 	z-index: 1;
 	left: 50%;
 	bottom: 30px;
-	font-size: 17px;
+	font-size: 14px;
+	line-height: 1.5em;
 }
 
 #toast.show {
@@ -264,4 +266,27 @@ p.introtext {
 	text-align: center;
 	margin-top: 20px;
 	margin-bottom: 20px;
+}
+
+.note {
+	border: 2px solid #ffcc00;
+	background-color: #fff8e1;
+	padding: 12px;
+	margin: 20px 0;
+	border-radius: 5px;
+	color: #333;
+	font-size: 14px;
+	line-height: 1.5;
+	max-width: 300px;
+	width: 300px;
+	margin: 10px auto 20px;
+}
+
+.note h3 {
+	margin-top: 0;
+	color: #ff9900;
+}
+
+.note p {
+	margin: 10px 0;
 }

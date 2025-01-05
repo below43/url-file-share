@@ -6,16 +6,18 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>URL File - share files embedded within URLs</title>
 	<link rel="stylesheet" href="style.css">
-	<link rel="manifest" href="manifest.json">    
+	<link rel="manifest" href="manifest.json">
 	<link rel="icon" href="icon.png" type="image/png">
 </head>
 
 <body>
 	<div class="container">
 		<h1>URL File</h1>
-		<p class="introtext">Share URLs containing Base64-encoded files.<br />Fully client-side. Your files are not stored on any server.</p>
+		<p class="introtext">Share URLs containing Base64-encoded files.<br />Fully client-side. Your files are not stored on any server.<br /><em>Works best with small files</em></p>
 		<div id="create-payload">
 			<input type="file" id="fileInput" onchange="convertFile()">
+
+			<p class="note">Note: If you clicked a file share link, and there's no file showing here, the browser may have stripped the query string. Try pasting the URL/payload instead.</p>
 		</div>
 		<div id="display-payload">
 			<div class="file-info">
@@ -31,12 +33,12 @@
 				<a href="#" onclick="copyPayload(event)" class="small-link">Copy payload</a>
 			</div>
 			</p>
-			<p id="size-warning" class="warning">
-				<b>Warning:</b> The file is large, so the URL probably won't work for most browsers. You could just copy the payload instead (this can be reloaded on this app).
+			<p id="size-warning" class="note">
+				<b>Warning:</b> The file is large, so the URL might not work for most browsers. You could just copy the payload instead.
 			</p>
 
-			<div id="toast"></div>
 		</div>
+		<div id="toast"></div>
 		<footer>
 			<div class="footer-links">
 				Created by Andrew Drake
@@ -55,7 +57,6 @@
 		const sizeWarning = document.getElementById('size-warning');
 		const fileInput = document.getElementById('fileInput');
 
-		this.reset();
 
 		//see if there's a payload in the URL
 		loadPayloadFromUrl();
@@ -72,24 +73,19 @@
 				document.body.style.cursor = 'wait';
 
 				const reader = new FileReader();
+
 				reader.onload = function (event)
 				{
 					const base64String = event.target.result.split(',')[1];
-					const mimeType = encodeURIComponent(file.type);
-					const uploadDate = encodeURIComponent(getLocalIsoTimestamp());
-					const encodedFilename = encodeURIComponent(file.name);
-					const encodedFilesize = encodeURIComponent(file.size);
+					const params = {
+						filename: file.name,
+						filesize: file.size,
+						mimetype: file.type,
+						uploaddate: getLocalIsoTimestamp(),
+						data: base64String
+					};
 
-					let baseUrl = window.location.origin;
-					if (baseUrl.startsWith('file:'))
-					{
-						baseUrl = '.';
-					}
-					this.payload = `filename=${encodedFilename}&filesize=${encodedFilesize}&mimetype=${mimeType}&uploaddate=${uploadDate}&data=${encodeURIComponent(base64String)}`;
-
-					const link = `${baseUrl}/#share.html?filename=${encodedFilename}&filesize=${encodedFilesize}&mimetype=${mimeType}&uploaddate=${uploadDate}&data=${encodeURIComponent(base64String)}`;
-
-					const linkContainer = document.getElementById('linkContainer'); let warningMessage = '';
+					this.payload = encodePayload(params);
 
 					setPayload(this.payload);
 				};
@@ -97,6 +93,29 @@
 			} else
 			{
 				alert('Please select a file first.');
+			}
+		}
+
+		function encodePayload(params)
+		{
+			return btoa(JSON.stringify({
+				filename: params.filename,
+				filesize: params.filesize,
+				mimetype: params.mimetype,
+				uploaddate: params.uploaddate,
+				data: params.data
+			}));
+		}
+
+		function decodePayload(encodedPayload)
+		{
+			try
+			{
+				return JSON.parse(atob(encodedPayload));
+			} catch (e)
+			{
+				console.error('Failed to decode payload:', e);
+				return null;
 			}
 		}
 
@@ -153,6 +172,17 @@
 			return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 		}
 
+		function showWarning()
+		{
+			if (this.payload.length > 2000000)
+			{
+				sizeWarning.style.display = 'block';
+			} else
+			{
+				sizeWarning.style.display = 'none';
+			}
+		}
+
 		function showToast(message)
 		{
 			const toast = document.getElementById('toast');
@@ -164,7 +194,7 @@
 			}, 3000);
 		}
 
-		function reset(event)
+		function reset(event, updateState = true)
 		{
 			if (event)
 			{
@@ -180,7 +210,10 @@
 			fileContentElement.innerHTML = '';
 
 			//set the url back to the base url
-			history.pushState(null, '', `${window.location.origin}${window.location.pathname}`);
+			if (updateState) 
+			{
+				history.pushState(null, '', `${window.location.origin}${window.location.pathname}`);
+			}
 		}
 
 		function pastePayload(event)
@@ -190,13 +223,16 @@
 				event.preventDefault();
 			}
 			//prompt for payload
-			const pastedPayload = prompt("Paste a payload that was generated from this app");
+			let pastedPayload = prompt("Paste a payload that was generated from this app");
 
 			if (pastedPayload)
 			{
 				try
 				{
-					this.reset();
+					if (pastedPayload.startsWith('#'))
+					{
+						pastedPayload = pastedPayload.substring(1);
+					}
 					this.payload = pastedPayload;
 					var params = getQueryParamsFromPayload(pastedPayload);
 					displayFileDetails(params);
@@ -222,11 +258,7 @@
 			// Revert cursor back to default
 			document.body.style.cursor = 'default';
 
-			// Check if the URL length exceeds the limit (e.g., 2000 characters)
-			if (payload.length > 2000000)
-			{
-				sizeWarning.style.display = 'block';
-			}
+			this.showWarning();
 
 			// Update the URL in the browser address bar
 			history.pushState(null, '', `${window.location.origin}${window.location.pathname}#${payload}`);
@@ -293,6 +325,7 @@
 		{
 			if (!window?.location?.hash)
 			{
+				this.reset(null, false);
 				return;
 			}
 			else
@@ -300,7 +333,10 @@
 				try
 				{
 					const payload = window.location.hash.substring(1);
-					if (!payload) return;
+					if (!payload) {
+						this.reset(null, false);
+						return;
+					}
 
 					if (payload == 'privacy')
 					{
@@ -316,7 +352,14 @@
 					this.payload = payload;
 					this.showFileDetailsContainer();
 					var params = this.getQueryParamsFromPayload(payload);
+					if (!params) {
+						displayPayloadContainer.style.display = 'inline';
+						displayPayloadContainer.innerHTML = '<div class="note"><b>Error: Invalid or corrupted payload</b><br/><br/>The payload couldn\'t be loaded - probably due to the browser truncating the query string. Try pasting the payload instead.</div>';
+						return;
+					}
 					this.displayFileDetails(params);
+
+					this.showWarning();
 				}
 				catch (e)
 				{
@@ -329,19 +372,15 @@
 		{
 			try
 			{
-				console.log(payload);
-				const hashParams = new URLSearchParams(payload);
-
-				const returnParams = {
-					base64String: hashParams.get('data'),
-					filename: hashParams.get('filename') || 'downloaded_file',
-					filesize: hashParams.get('filesize') || 'Unknown size',
-					mimeType: hashParams.get('mimetype') || 'application/octet-stream',
-					uploadDate: hashParams.get('uploaddate') || 'Unknown date'
+				const params = decodePayload(payload);
+				return {
+					base64String: params.data,
+					filename: params.filename || 'downloaded_file',
+					filesize: params.filesize || 'Unknown size',
+					mimeType: params.mimetype || 'application/octet-stream',
+					uploadDate: params.uploaddate || 'Unknown date'
 				};
-				return returnParams;
-			}
-			catch (e)
+			} catch (e)
 			{
 				console.error(e);
 				return null;
