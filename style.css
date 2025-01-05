@@ -301,15 +301,18 @@ p.introtext {
     height: 100%;
     background-color: rgba(0,0,0,0.5);
     z-index: 1000;
+    overflow: auto;
 }
 
 .modal-content {
     background-color: #fff;
-    margin: 15% auto;
+    margin: 10% auto;
     padding: 20px;
-    border-radius: 5px;
+    border: 1px solid #888;
     width: 80%;
-    max-width: 600px;
+    max-height: 90%;
+    overflow-y: auto;
+    border-radius: 5px;
 }
 
 .modal-buttons {
@@ -331,6 +334,18 @@ div#loading {
 	top: 0;
 	left: 0;
 	z-index: 1000;
+}
+
+.modal-body {
+    margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+    .modal-content {
+        width: 90%;
+        margin: 5% auto;
+        padding: 10px;
+    }
 }
 
 @keyframes loading {
