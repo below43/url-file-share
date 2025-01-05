@@ -13,6 +13,7 @@ body {
 
 .container {
 	text-align: center;
+	padding: 0 20px;
 }
 
 .content {
@@ -135,7 +136,7 @@ button:hover,
 footer {
 	margin-top: 60px;
 	text-align: center;
-	padding: 10px;
+	padding: 10px 0;
 	border-top: 1px solid #ccc;
 
 }
