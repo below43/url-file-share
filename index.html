@@ -14,17 +14,17 @@
 	<div id="loading"></div>
 	<div class="container">
 		<h1>URL File</h1>
-		<p class="introtext">Share URLs containing Base64-encoded files.<br />Fully client-side. Your files are not stored on any server.</p>
+		<p class="introtext">Share URLs containing Base64-encoded files.<br />Fully client-side. Your files are not stored on or loaded by any server.</p>
 		<div id="create-payload">
 			<input type="file" id="fileInput" onchange="convertFile()">
 			<p><em>Note: this works best with small files</em></p>
 		</div>
-		<div id="payload-error" class="note">
+		<div id="payload-error" class="note" style="display:none">
 			<b>Error: Unable to load file</b><br /><br />
 			This normally occurs with larger files, when the browser truncates the query string. You may want to paste the URL + payload instead.<br /><br />
 			<button onclick="pastePayload(event)" class="button-solid">Paste the URL + Payload</button>
 		</div>
-		<div id="display-payload">
+		<div id="display-payload" style="display:none">
 			<div class="file-info">
 				<p><b>Filename</b><span id="filename"></span></p>
 				<p><b>File size</b><span id="fileSize"></span></p>
@@ -39,8 +39,8 @@
 				<a href="#" onclick="copyPayload(event)" class="small-link">Copy payload</a> -->
 			</div>
 			</p>
-			<p id="size-warning" class="note">
-				<b>Warning:</b> The file is large, so some browsers may end up truncating the query string. You may need to paste the URL + payload at the other end to retrieve the file.
+			<p id="size-warning" class="note" style="display:none">
+				<b>Warning:</b> The file is large, so some browsers may end up truncating the query string. You may need to paste the URL + Payload at the other end to retrieve the file.
 			</p>
 
 		</div>
@@ -52,7 +52,7 @@
 				<a href="#about" onclick="showModal(event, 'about')" class="small-link">About</a>
 				<a href="#terms" onclick="showModal(event, 'terms')">Terms & privacy</a>
 			</div>
-			<p style="margin-top: 20px; font-size: 12px;">made by <a href="https://andrew.drake.nz" style="color: #666;">andrew.drake.nz</a></p>
+			<p style="margin-top: 20px; font-size: 12px;">made by <a href="https://kawhe.app" style="color: #666;">kawhe apps</a></p>
 		</footer>
 	</div>
 
@@ -84,6 +84,7 @@
 				<p>Because the payload is transported via the # fragment, theoretically the payload is only loaded local to the client, and not sent to the server.</p>
 				<p>Suffice to say, this is completely useless for larger files, though it's fun to see what each brower's limit is...</p>
 				<p>Made with a bit of help from GitHub Copilot.</p>
+				<p>Project homepage: <a href="https://github.com/below43/url-file-share" target="_blank">GitHub</a></p>
 				<p>&copy; <a href="https://andrew.drake.nz" style="text-decoration: none;">Andrew Drake</a>  2025</p>
 			</div>
 			<div class="modal-buttons">
