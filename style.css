@@ -324,6 +324,20 @@ p.introtext {
     justify-content: center;
 }
 
+dialog {
+    width: 80%;
+    max-height: 90%;
+    border: none;
+    border-radius: 5px;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
 div#loading {
 	display: none;
 	width: 100%;

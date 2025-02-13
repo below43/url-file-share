@@ -1,14 +1,26 @@
-const createPayloadContainer = document.getElementById('create-payload');
-const displayPayloadContainer = document.getElementById('display-payload');
-const payloadError = document.getElementById('payload-error');
-const filePreviewElement = document.getElementById('filePreview');
-const fileContentElement = document.getElementById('fileContent');
-const sizeWarning = document.getElementById('size-warning');
-const fileInput = document.getElementById('fileInput');
-const loading = document.getElementById('loading');
+let createPayloadContainer;
+let displayPayloadContainer;
+let payloadError;
+let filePreviewElement;
+let fileContentElement;
+let sizeWarning;
+let fileInput;
+let loading;
 
-// See if there's a payload in the URL
-loadPayloadFromUrl();
+window.onload = function() {
+	createPayloadContainer = document.getElementById('create-payload');
+	displayPayloadContainer = document.getElementById('display-payload');
+	payloadError = document.getElementById('payload-error');
+	filePreviewElement = document.getElementById('filePreview');
+	fileContentElement = document.getElementById('fileContent');
+	sizeWarning = document.getElementById('size-warning');
+	fileInput = document.getElementById('fileInput');
+	loading = document.getElementById('loading');
+
+	// See if there's a payload in the URL
+	loadPayloadFromUrl();
+};
+
 
 function convertFile()
 {
@@ -370,28 +382,26 @@ function formatFileSize(bytes)
 	return formattedSize.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-function showModal(event, modalId)
-{
-	if (event)
-	{
-		event.preventDefault();
-	}
-	document.getElementById(modalId).style.display = 'block';
+function showModal(event, modalId) {
+    if (event) {
+        event.preventDefault();
+    }
+    const modal = document.getElementById(modalId);
+    modal.showModal();
 }
 
-function closeModal(modalId)
-{
-	document.getElementById(modalId).style.display = 'none';
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.close();
 }
 
-function handleModalClick(event, modalId)
-{
-	// If clicking the backdrop (not the modal content), close the modal
-	if (event.target.classList.contains('modal'))
-	{
-		closeModal(modalId);
-	}
+function handleModalClick(event, modalId) {
+    const modal = document.getElementById(modalId);
+    if (event.target === modal) {
+        closeModal(modalId);
+    }
 }
+
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js') // Update the version here
     .then(function(registration) {

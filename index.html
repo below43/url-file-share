@@ -52,46 +52,39 @@
 				<a href="#about" onclick="showModal(event, 'about')" class="small-link">About</a>
 				<a href="#terms" onclick="showModal(event, 'terms')">Terms & privacy</a>
 			</div>
-			<p style="margin-top: 20px; font-size: 12px;">made by <a href="https://kawhe.app" style="color: #666;">kawhe apps</a></p>
 		</footer>
 	</div>
 
-    <script src="script.js"></script>
+    <script src="script.js" async></script>
 
-	<div id="terms" class="modal" onclick="handleModalClick(event, 'terms')">
-		<div class="modal-content">
-			<h3>Terms of Service</h3>
-			<div class="modal-body">
-				<p>This service is provided "as is" without any warranties, express or implied. Use of this service is at your own risk. The service provider does not guarantee the availability, accuracy, or functionality of the service.</p>
-				<p>Users must not use this service for any illegal or unauthorized purposes.</p>
-			</div>
-			<h3>Privacy Policy</h3>
-			<div class="modal-body">
-				<p>We respect your privacy. None of your data is stored or tracked. No files are saved on a server. Cloudflare Web Analytics record privacy-first anonymous usage data.</p>
-			</div>
-			<div class="modal-buttons">
-				<button onclick="closeModal('terms')" class="button-outline">Close</button>
-			</div>
+	<dialog id="terms" class="backdrop">
+		<h3>Terms of Service</h3>
+		<div class="modal-body">
+			<p>This service is provided "as is" without any warranties, express or implied. Use of this service is at your own risk. The service provider does not guarantee the availability, accuracy, or functionality of the service.</p>
+			<p>Users must not use this service for any illegal or unauthorized purposes.</p>
 		</div>
-	</div>
+		<h3>Privacy Policy</h3>
+		<div class="modal-body">
+			<p>This is a privacy-first tool. None of your data is stored or tracked. No files are saved on a server. <a href="https://www.cloudflare.com/en-au/web-analytics/">Cloudflare Web Analytics</a> records privacy-first anonymous usage data (there is no client-side state collection of usage metrics).</p>
+		</div>
+		<div class="modal-buttons">
+			<button onclick="closeModal('terms')" class="button-outline">Close</button>
+		</div>
+	</dialog>
 
-	<div id="about" class="modal" onclick="handleModalClick(event, 'about')">
-		<div class="modal-content">
-			<h2>About</h2>
-			<div class="modal-body">
-				<p>I use multiple machines with a shared keyboard and mouse (I use <a href="https://github.com/input-leap/input-leap" nofollow="nofollow" target="_blank">InputLeap</a>). I created this tool so that I could easily transfer files from one machine to another using a shared clipboard. This works equally well pasting into a chat or an email, but may meet varying degrees of success depending on the transport mechanism.</p>
-				<p>To an extent, this is an academic exercise: to show that a file can be transported via a URL. However, I do find it jolly useful for small file transfers. Coupled with Edge's QR code generator, it's fairly handy for getting a small file onto a mobile.</p>
-				<p>Because the payload is transported via the # fragment, theoretically the payload is only loaded local to the client, and not sent to the server.</p>
-				<p>Suffice to say, this is completely useless for larger files, though it's fun to see what each brower's limit is...</p>
-				<p>Made with a bit of help from GitHub Copilot.</p>
-				<p>Project homepage: <a href="https://github.com/below43/url-file-share" target="_blank">GitHub</a></p>
-				<p>&copy; <a href="https://andrew.drake.nz" style="text-decoration: none;">Andrew Drake</a>  2025</p>
-			</div>
-			<div class="modal-buttons">
-				<button onclick="closeModal('about')" class="button-outline">Close</button>
-			</div>
+	<dialog id="about" class="backdrop">
+		<h2>About</h2>
+		<div class="modal-body">
+			<p>I created this tool so that I could easily transfer files from one machine to another using just the URL - without storing any file on a server.</p>
+			<p>Because the payload is transported via the # fragment, the payload should only load locally in the client (browser), and not get sent to the server, which is nice from a privacy perspective. Suffice to say, this is completely useless for larger files, though it's fun to see what <a href="https://stackoverflow.com/a/417184" nofollow="nofollow" target="_blank">each browser's limit</a> is...</p>
+			<p>To an extent, this tool was partly built for fun and partly as an academic exercise: to show that a file can be transported via a URL with the file encoded as a Base64-encoded parameter. However, I've ended up finding it pretty useful in its own way and use this quite frequently for small file transfers between machines over a <a href="https://github.com/input-leap/input-leap" nofollow="nofollow" target="_blank">virtual KVM</a> or to mobiles via <a href="https://www.microsoft.com/en-us/edge/learning-center/how-to-generate-qr-codes?form=MA13I2" nofollow="nofollow" target="_blank">QR codes</a>.</p>
+			<p>Project homepage: <a href="https://github.com/below43/url-file-share" target="_blank">GitHub</a></p>
 		</div>
-	</div>
+		<div class="modal-buttons">
+			<button onclick="closeModal('about')" class="button-outline">Close</button>
+		</div>
+	</dialog>
+	
 </body>
 
 </html>
