@@ -34,5 +34,5 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Acknowledgments
-- Created by [Andrew Drake](https://x.com/below43)
+- Created by [Andrew Drake](https://bsky.app/profile/andrew.drake.nz)
 - [Project Homepage](https://github.com/below43/url-file-share)
