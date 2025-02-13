@@ -403,7 +403,7 @@ function handleModalClick(event, modalId) {
 }
 
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js') // Update the version here
+    navigator.serviceWorker.register('/service-worker.js?v=2') // Update the version here
     .then(function(registration) {
         console.log('Service Worker registered with scope:', registration.scope);
 
