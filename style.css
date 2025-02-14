@@ -326,6 +326,7 @@ p.introtext {
 
 dialog {
     width: 80%;
+	max-width: 600px;
     max-height: 90%;
     border: none;
     border-radius: 5px;
