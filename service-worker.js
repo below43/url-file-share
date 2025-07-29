@@ -1,4 +1,4 @@
-const CACHE_NAME = 'v12';
+const CACHE_NAME = 'v12.1';
 
 self.addEventListener('install', event => {
 	console.debug('Installing service worker...', event);
@@ -10,7 +10,8 @@ self.addEventListener('install', event => {
                 '/style.css',
                 '/script.js',
                 '/manifest.json',
-                '/icon.png'
+                '/icon.png',
+                '/favicon.png'
             ]);
         }).then(() => self.skipWaiting())
     );
