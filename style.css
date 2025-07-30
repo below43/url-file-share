@@ -26,7 +26,7 @@ body {
 
 
 h1 {
-	color: #4a90e2;
+	color: #FF6C21;
 	margin-bottom: 20px;
 }
 
@@ -37,7 +37,7 @@ h2 {
 input[type="file"] {
 	margin-bottom: 2px;
 	padding: 10px;
-	border: 2px solid #4a90e2;
+	border: 2px solid #FF6C21;
 	border-radius: 5px;
 	font-size: 16px;
 	margin-right: 20px;
@@ -47,7 +47,7 @@ input[type="file"] {
 
 button,
 .button {
-	background-color: #4a90e2;
+	background-color: #FF6C21;
 	color: white;
 	border: none;
 	padding: 10px 20px;
@@ -67,12 +67,12 @@ button:hover,
 /* Outline button styles */
 .button-outline {
     background-color: transparent;
-    color: #4a90e2;
-    border: 2px solid #4a90e2;
+    color: #FF6C21;
+    border: 2px solid #FF6C21;
 }
 
 .button-outline:hover {
-    background-color: #4a90e2;
+    background-color: #FF6C21;
     color: white;
 }
 
@@ -81,7 +81,7 @@ button:hover,
 }
 
 #linkContainer a {
-	color: #4a90e2;
+	color: #FF6C21;
 	text-decoration: none;
 }
 
@@ -106,7 +106,7 @@ button:hover,
 }
 
 .link-preview a {
-	color: #4a90e2;
+	color: #FF6C21;
 	text-decoration: none;
 }
 
@@ -152,7 +152,7 @@ footer {
 
 footer a,
 .small-link {
-	color: #4a90e2;
+	color: #FF6C21;
 	text-decoration: none;
 	font-size: 12px;
 	font-weight: 400;
