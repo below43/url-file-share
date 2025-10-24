@@ -22,6 +22,13 @@
 			<input type="file" id="fileInput" onchange="convertFile()">
 			<p><em>Note: this works best with small files</em></p>
 		</div>
+		<div id="create-text-payload" style="display:none">
+			<label for="textInput">Text</label>
+			<textarea id="textInput" rows="10" cols="50" placeholder="Paste or type your text here..."></textarea>
+			<br>
+			<button onclick="convertText()" class="button-solid">Create Shareable Link</button>
+			<p><em>Note: this works best with small text</em></p>
+		</div>
 		<div id="payload-error" class="note" style="display:none">
 			<b>Error: Unable to load file</b><br /><br />
 			This normally occurs with larger files, when the browser truncates the query string. You may want to paste the URL + payload instead.<br /><br />
@@ -48,6 +55,7 @@
 		<footer>
 			<div class="footer-links">
 				<a href="#" onclick="reset(event)" class="small-link">Share a file</a>
+				<a href="#" onclick="showTextInput(event)" class="small-link">Share text</a>
 				<a href="#" onclick="pastePayload(event)" class="small-link">Paste URL + Payload</a>
 				<a href="#about" onclick="showModal(event, 'about')" class="small-link">About</a>
 				<a href="#terms" onclick="showModal(event, 'terms')">Terms & privacy</a>

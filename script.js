@@ -1,20 +1,24 @@
 let createPayloadContainer;
+let createTextPayloadContainer;
 let displayPayloadContainer;
 let payloadError;
 let filePreviewElement;
 let fileContentElement;
 let sizeWarning;
 let fileInput;
+let textInput;
 let loading;
 
 window.onload = function() {
 	createPayloadContainer = document.getElementById('create-payload');
+	createTextPayloadContainer = document.getElementById('create-text-payload');
 	displayPayloadContainer = document.getElementById('display-payload');
 	payloadError = document.getElementById('payload-error');
 	filePreviewElement = document.getElementById('filePreview');
 	fileContentElement = document.getElementById('fileContent');
 	sizeWarning = document.getElementById('size-warning');
 	fileInput = document.getElementById('fileInput');
+	textInput = document.getElementById('textInput');
 	loading = document.getElementById('loading');
 
 	// See if there's a payload in the URL
@@ -61,6 +65,66 @@ function convertFile()
 	{
 		alert('Please select a file first.');
 	}
+}
+
+function convertText()
+{
+	loading.style.display = 'block';
+	sizeWarning.style.display = 'none';
+	const text = textInput.value;
+	
+	if (text && text.trim().length > 0)
+	{
+		try
+		{
+			// Convert text to base64
+			const base64String = btoa(unescape(encodeURIComponent(text)));
+			const textSize = new Blob([text]).size;
+			
+			const params = {
+				filename: 'shared-text.txt',
+				filesize: textSize,
+				mimetype: 'text/plain',
+				uploaddate: getLocalIsoTimestamp(),
+				data: base64String
+			};
+
+			this.payload = encodePayload(params);
+			setPayload(this.payload);
+		} catch (e)
+		{
+			console.error('Failed to convert text:', e);
+			alert('Failed to convert text. Please try again.');
+		} finally
+		{
+			loading.style.display = 'none';
+		}
+	} else
+	{
+		loading.style.display = 'none';
+		alert('Please enter some text first.');
+	}
+}
+
+function showTextInput(event)
+{
+	if (event)
+	{
+		event.preventDefault();
+	}
+	
+	createPayloadContainer.style.display = 'none';
+	createTextPayloadContainer.style.display = 'inline';
+	displayPayloadContainer.style.display = 'none';
+	payloadError.style.display = 'none';
+	sizeWarning.style.display = 'none';
+	fileInput.value = '';
+	textInput.value = '';
+	filePreviewElement.innerHTML = '';
+	fileContentElement.innerHTML = '';
+	
+	// Set the URL back to the base URL
+	history.pushState(null, '', `${window.location.origin}${window.location.pathname}`);
 }
 
 function encodePayload(params)
@@ -178,10 +242,12 @@ function reset(event, updateState = true)
 	this.payload = '';
 
 	createPayloadContainer.style.display = 'inline';
+	createTextPayloadContainer.style.display = 'none';
 	displayPayloadContainer.style.display = 'none';
 	payloadError.style.display = 'none';
 	sizeWarning.style.display = 'none';
 	fileInput.value = '';
+	textInput.value = '';
 	filePreviewElement.innerHTML = '';
 	fileContentElement.innerHTML = '';
 
@@ -229,6 +295,7 @@ function showFileDetailsContainer()
 {
 	// Update the display with the file information
 	createPayloadContainer.style.display = 'none';
+	createTextPayloadContainer.style.display = 'none';
 	displayPayloadContainer.style.display = 'inline';
 	payloadError.style.display = 'none';
 }

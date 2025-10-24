@@ -44,6 +44,18 @@ input[type="file"] {
 	margin-left: 20px;
 }
 
+textarea {
+	margin-bottom: 10px;
+	padding: 10px;
+	border: 2px solid #4a90e2;
+	border-radius: 5px;
+	font-size: 14px;
+	font-family: Arial, sans-serif;
+	resize: vertical;
+	width: 90%;
+	max-width: 500px;
+}
+
 
 button,
 .button {
