@@ -153,13 +153,22 @@ button,
 	font-size: 16px;
 	margin: 5px;
 	text-decoration: none;
-    background-color: transparent;
+	background-color: var(--button-bg);
+	color: white;
+	border: none;
+	padding: 10px 20px;
+	cursor: pointer;
+	border-radius: 5px;
 	/* Ensure links styled as buttons have no underline */
 }
 
 button:hover,
 .button:hover {
 	background-color: var(--button-hover);
+}
+
+button#theme-toggle {
+    background-color: transparent;
 }
 
 /* Outline button styles */
