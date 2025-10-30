@@ -619,3 +619,58 @@ if ('serviceWorker' in navigator) {
 function updateReady(worker) {
     worker.postMessage({ action: 'skipWaiting' });
 }
+
+// Dark mode toggle functionality
+function toggleTheme() {
+	const body = document.body;
+	const themeToggle = document.getElementById('theme-toggle');
+	
+	// Check current theme
+	if (body.classList.contains('dark-mode')) {
+		// Switch to light mode
+		body.classList.remove('dark-mode');
+		body.classList.add('light-mode');
+		themeToggle.textContent = '🌙';
+		localStorage.setItem('theme', 'light');
+	} else {
+		// Switch to dark mode
+		body.classList.remove('light-mode');
+		body.classList.add('dark-mode');
+		themeToggle.textContent = '☀️';
+		localStorage.setItem('theme', 'dark');
+	}
+}
+
+// Initialize theme on page load
+function initTheme() {
+	const body = document.body;
+	const themeToggle = document.getElementById('theme-toggle');
+	const savedTheme = localStorage.getItem('theme');
+	
+	if (savedTheme) {
+		// Use saved preference
+		if (savedTheme === 'dark') {
+			body.classList.add('dark-mode');
+			themeToggle.textContent = '☀️';
+		} else {
+			body.classList.add('light-mode');
+			themeToggle.textContent = '🌙';
+		}
+	} else {
+		// Check system preference
+		if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+			body.classList.add('dark-mode');
+			themeToggle.textContent = '☀️';
+		} else {
+			body.classList.add('light-mode');
+			themeToggle.textContent = '🌙';
+		}
+	}
+}
+
+// Call initTheme when DOM is loaded
+if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', initTheme);
+} else {
+	initTheme();
+}
