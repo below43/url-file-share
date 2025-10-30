@@ -13,6 +13,7 @@
 </head>
 
 <body>
+	<button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
 	<div id="loading"></div>
 	<div class="container">
 		<h1>URL File</h1>
@@ -21,6 +22,14 @@
 			<label for="fileInput">File</label>
 			<input type="file" id="fileInput" onchange="convertFile()">
 			<p><em>Note: this works best with small files</em></p>
+		</div>
+		<div id="create-text-payload" style="display:none">
+			<label for="textInput">Text</label>
+			<textarea id="textInput" rows="10" cols="50" placeholder="Paste or type your text here..."></textarea>
+			<br>
+			<button onclick="convertText()" class="button-solid">Create Shareable Link</button>
+			<button onclick="share()" id="share-text" class="button-solid" style="display:none">Copy URL + Payload</button>
+			<p><em>Note: this works best with small text</em></p>
 		</div>
 		<div id="payload-error" class="note" style="display:none">
 			<b>Error: Unable to load file</b><br /><br />
@@ -48,6 +57,7 @@
 		<footer>
 			<div class="footer-links">
 				<a href="#" onclick="reset(event)" class="small-link">Share a file</a>
+				<a href="#" onclick="showTextInput(event)" class="small-link">Share text</a>
 				<a href="#" onclick="pastePayload(event)" class="small-link">Paste URL + Payload</a>
 				<a href="#about" onclick="showModal(event, 'about')" class="small-link">About</a>
 				<a href="#terms" onclick="showModal(event, 'terms')">Terms & privacy</a>

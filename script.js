@@ -1,20 +1,24 @@
 let createPayloadContainer;
+let createTextPayloadContainer;
 let displayPayloadContainer;
 let payloadError;
 let filePreviewElement;
 let fileContentElement;
 let sizeWarning;
 let fileInput;
+let textInput;
 let loading;
 
 window.onload = function() {
 	createPayloadContainer = document.getElementById('create-payload');
+	createTextPayloadContainer = document.getElementById('create-text-payload');
 	displayPayloadContainer = document.getElementById('display-payload');
 	payloadError = document.getElementById('payload-error');
 	filePreviewElement = document.getElementById('filePreview');
 	fileContentElement = document.getElementById('fileContent');
 	sizeWarning = document.getElementById('size-warning');
 	fileInput = document.getElementById('fileInput');
+	textInput = document.getElementById('textInput');
 	loading = document.getElementById('loading');
 
 	// See if there's a payload in the URL
@@ -61,6 +65,114 @@ function convertFile()
 	{
 		alert('Please select a file first.');
 	}
+}
+
+function convertText()
+{
+	loading.style.display = 'block';
+	sizeWarning.style.display = 'none';
+	const text = textInput.value;
+	
+	if (text && text.trim().length > 0)
+	{
+		try
+		{
+			// Convert text to base64
+			const base64String = btoa(unescape(encodeURIComponent(text)));
+			const textSize = new Blob([text]).size;
+			
+			const params = {
+				filename: 'shared-text.txt',
+				filesize: textSize,
+				mimetype: 'text/plain',
+				uploaddate: getLocalIsoTimestamp(),
+				data: base64String
+			};
+
+			this.payload = encodePayload(params);
+			setPayload(this.payload, true);
+			
+			// Show the share button and hide the create button
+			document.getElementById('share-text').style.display = 'inline';
+			event.target.style.display = 'none';
+			
+			// Add event listener to update payload on text change
+			textInput.removeEventListener('input', updateTextPayload);
+			textInput.addEventListener('input', updateTextPayload);
+		} catch (e)
+		{
+			console.error('Failed to convert text:', e);
+			alert('Failed to convert text. Please try again.');
+		} finally
+		{
+			loading.style.display = 'none';
+		}
+	} else
+	{
+		loading.style.display = 'none';
+		alert('Please enter some text first.');
+	}
+}
+
+function updateTextPayload()
+{
+	const text = textInput.value;
+	
+	if (text && text.trim().length > 0)
+	{
+		try
+		{
+			// Convert text to base64
+			const base64String = btoa(unescape(encodeURIComponent(text)));
+			const textSize = new Blob([text]).size;
+			
+			const params = {
+				filename: 'shared-text.txt',
+				filesize: textSize,
+				mimetype: 'text/plain',
+				uploaddate: getLocalIsoTimestamp(),
+				data: base64String
+			};
+
+			this.payload = encodePayload(params);
+			// Update URL without changing display state
+			history.pushState(null, '', `${window.location.origin}${window.location.pathname}#${this.payload}`);
+			showWarning();
+		} catch (e)
+		{
+			console.error('Failed to update text:', e);
+		}
+	}
+}
+
+function showTextInput(event)
+{
+	if (event)
+	{
+		event.preventDefault();
+	}
+	
+	createPayloadContainer.style.display = 'none';
+	createTextPayloadContainer.style.display = 'inline';
+	displayPayloadContainer.style.display = 'none';
+	payloadError.style.display = 'none';
+	sizeWarning.style.display = 'none';
+	fileInput.value = '';
+	textInput.value = '';
+	filePreviewElement.innerHTML = '';
+	fileContentElement.innerHTML = '';
+	
+	// Show create button, hide share button
+	const createButton = document.querySelector('#create-text-payload button[onclick="convertText()"]');
+	const shareButton = document.getElementById('share-text');
+	if (createButton) createButton.style.display = 'inline';
+	if (shareButton) shareButton.style.display = 'none';
+	
+	// Remove event listener if present
+	textInput.removeEventListener('input', updateTextPayload);
+	
+	// Set the URL back to the base URL
+	history.pushState(null, '', `${window.location.origin}${window.location.pathname}`);
 }
 
 function encodePayload(params)
@@ -178,12 +290,23 @@ function reset(event, updateState = true)
 	this.payload = '';
 
 	createPayloadContainer.style.display = 'inline';
+	createTextPayloadContainer.style.display = 'none';
 	displayPayloadContainer.style.display = 'none';
 	payloadError.style.display = 'none';
 	sizeWarning.style.display = 'none';
 	fileInput.value = '';
+	textInput.value = '';
 	filePreviewElement.innerHTML = '';
 	fileContentElement.innerHTML = '';
+	
+	// Reset button visibility
+	const createButton = document.querySelector('#create-text-payload button[onclick="convertText()"]');
+	const shareButton = document.getElementById('share-text');
+	if (createButton) createButton.style.display = 'inline';
+	if (shareButton) shareButton.style.display = 'none';
+	
+	// Remove event listener if present
+	textInput.removeEventListener('input', updateTextPayload);
 
 	// Set the URL back to the base URL
 	if (updateState)
@@ -229,11 +352,12 @@ function showFileDetailsContainer()
 {
 	// Update the display with the file information
 	createPayloadContainer.style.display = 'none';
+	createTextPayloadContainer.style.display = 'none';
 	displayPayloadContainer.style.display = 'inline';
 	payloadError.style.display = 'none';
 }
 
-function setPayload(payload)
+function setPayload(payload, isTextMode)
 {
 	this.payload = payload;
 
@@ -246,61 +370,100 @@ function setPayload(payload)
 	history.pushState(null, '', `${window.location.origin}${window.location.pathname}#${payload}`);
 
 	var params = getQueryParamsFromPayload(payload);
-	displayFileDetails(params);
+	displayFileDetails(params, isTextMode);
 }
 
 let params = '';
-function displayFileDetails(params)
+function displayFileDetails(params, isTextMode)
 {
 	this.params = '';
-	this.showFileDetailsContainer();
-
-	const filenameElement = document.getElementById('filename');
-	const fileSizeElement = document.getElementById('fileSize');
-	const fileMimeTypeElement = document.getElementById('fileMimeType');
-	const uploadDateElement = document.getElementById('uploadDate');
-	if (params.base64String)
+	
+	// Check if this is a text payload
+	const isTextPayload = isTextMode || (params.mimeType === 'text/plain' && params.filename === 'shared-text.txt');
+	
+	if (isTextPayload)
 	{
-		fileContentElement.innerHTML = '';
-		this.params = params;
-
-		document.title = `URL File Share - ${params.filename}`; // Update the page title with the filename
-		filenameElement.textContent = params.filename;
-		fileSizeElement.textContent = formatFileSize(params.filesize);
-		fileMimeTypeElement.textContent = params.mimeType;
-		uploadDateElement.textContent = params.uploadDate;
-
-		const blob = base64ToBlob(params.base64String, params.mimeType);
-		const url = URL.createObjectURL(blob);
-
-		// Check if the file is an image
-		if (params.filename.match(/\.(jpeg|jpg|gif|png)$/))
+		// Show text in editable textarea
+		createPayloadContainer.style.display = 'none';
+		createTextPayloadContainer.style.display = 'inline';
+		displayPayloadContainer.style.display = 'none';
+		payloadError.style.display = 'none';
+		
+		// Decode and display the text
+		try
 		{
-			const imgLink = document.createElement('a');
-			imgLink.href = url;
-			imgLink.target = '_blank';
-
-			const img = document.createElement('img');
-			img.src = url;
-			img.alt = params.filename;
-			img.style.maxWidth = '200px';
-			img.style.maxHeight = '200px';
-			img.style.border = '1px solid #ccc';
-			img.style.marginBottom = '10px';
-
-			imgLink.appendChild(img);
-			filePreviewElement.appendChild(imgLink);
+			const decodedText = decodeURIComponent(escape(atob(params.base64String)));
+			textInput.value = decodedText;
+			
+			// Show share button, hide create button
+			const createButton = document.querySelector('#create-text-payload button[onclick="convertText()"]');
+			const shareButton = document.getElementById('share-text');
+			if (createButton) createButton.style.display = 'none';
+			if (shareButton) shareButton.style.display = 'inline';
+			
+			// Add event listener to update payload on text change
+			textInput.removeEventListener('input', updateTextPayload);
+			textInput.addEventListener('input', updateTextPayload);
+		} catch (e)
+		{
+			console.error('Failed to decode text:', e);
+			textInput.value = 'Error decoding text';
 		}
-
-		const link = document.createElement('a');
-		link.href = url;
-		link.download = params.filename;
-		link.innerHTML = '⬇ &nbsp;Download this file';
-		link.className = 'button button-outline download-button';
-		fileContentElement.appendChild(link);
-	} else
+		
+		document.title = `URL File Share - ${params.filename}`;
+	}
+	else
 	{
-		fileContentElement.textContent = 'No data found.';
+		// Show file download for non-text payloads
+		this.showFileDetailsContainer();
+
+		const filenameElement = document.getElementById('filename');
+		const fileSizeElement = document.getElementById('fileSize');
+		const fileMimeTypeElement = document.getElementById('fileMimeType');
+		const uploadDateElement = document.getElementById('uploadDate');
+		if (params.base64String)
+		{
+			fileContentElement.innerHTML = '';
+			this.params = params;
+
+			document.title = `URL File Share - ${params.filename}`; // Update the page title with the filename
+			filenameElement.textContent = params.filename;
+			fileSizeElement.textContent = formatFileSize(params.filesize);
+			fileMimeTypeElement.textContent = params.mimeType;
+			uploadDateElement.textContent = params.uploadDate;
+
+			const blob = base64ToBlob(params.base64String, params.mimeType);
+			const url = URL.createObjectURL(blob);
+
+			// Check if the file is an image
+			if (params.filename.match(/\.(jpeg|jpg|gif|png)$/))
+			{
+				const imgLink = document.createElement('a');
+				imgLink.href = url;
+				imgLink.target = '_blank';
+
+				const img = document.createElement('img');
+				img.src = url;
+				img.alt = params.filename;
+				img.style.maxWidth = '200px';
+				img.style.maxHeight = '200px';
+				img.style.border = '1px solid #ccc';
+				img.style.marginBottom = '10px';
+
+				imgLink.appendChild(img);
+				filePreviewElement.appendChild(imgLink);
+			}
+
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = params.filename;
+			link.innerHTML = '⬇ &nbsp;Download this file';
+			link.className = 'button button-outline download-button';
+			fileContentElement.appendChild(link);
+		} else
+		{
+			fileContentElement.textContent = 'No data found.';
+		}
 	}
 }
 
@@ -455,4 +618,59 @@ if ('serviceWorker' in navigator) {
 
 function updateReady(worker) {
     worker.postMessage({ action: 'skipWaiting' });
+}
+
+// Dark mode toggle functionality
+function toggleTheme() {
+	const body = document.body;
+	const themeToggle = document.getElementById('theme-toggle');
+	
+	// Check current theme
+	if (body.classList.contains('dark-mode')) {
+		// Switch to light mode
+		body.classList.remove('dark-mode');
+		body.classList.add('light-mode');
+		themeToggle.textContent = '🌙';
+		localStorage.setItem('theme', 'light');
+	} else {
+		// Switch to dark mode
+		body.classList.remove('light-mode');
+		body.classList.add('dark-mode');
+		themeToggle.textContent = '☀️';
+		localStorage.setItem('theme', 'dark');
+	}
+}
+
+// Initialize theme on page load
+function initTheme() {
+	const body = document.body;
+	const themeToggle = document.getElementById('theme-toggle');
+	const savedTheme = localStorage.getItem('theme');
+	
+	if (savedTheme) {
+		// Use saved preference
+		if (savedTheme === 'dark') {
+			body.classList.add('dark-mode');
+			themeToggle.textContent = '☀️';
+		} else {
+			body.classList.add('light-mode');
+			themeToggle.textContent = '🌙';
+		}
+	} else {
+		// Check system preference
+		if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+			body.classList.add('dark-mode');
+			themeToggle.textContent = '☀️';
+		} else {
+			body.classList.add('light-mode');
+			themeToggle.textContent = '🌙';
+		}
+	}
+}
+
+// Call initTheme when DOM is loaded
+if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', initTheme);
+} else {
+	initTheme();
 }

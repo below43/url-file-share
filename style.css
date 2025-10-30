@@ -1,14 +1,97 @@
 /* style.css */
+:root {
+	--bg-color: #f4f4f9;
+	--text-color: #333;
+	--heading-color: #4a90e2;
+	--border-color: #ccc;
+	--card-bg: #fff;
+	--button-bg: #4a90e2;
+	--button-hover: #357ab8;
+	--link-color: #4a90e2;
+	--note-border: #ffcc00;
+	--note-bg: #fff8e1;
+	--note-text: #333;
+	--toast-bg: #333;
+	--toast-text: #fff;
+	--modal-backdrop: rgba(0, 0, 0, 0.5);
+	--intro-text: darkgrey;
+	--input-bg: #fff;
+	--input-text: #333;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg-color: #1a1a1a;
+		--text-color: #e0e0e0;
+		--heading-color: #5ba3f5;
+		--border-color: #444;
+		--card-bg: #2a2a2a;
+		--button-bg: #5ba3f5;
+		--button-hover: #4a90e2;
+		--link-color: #5ba3f5;
+		--note-border: #d4a800;
+		--note-bg: #3a3420;
+		--note-text: #e0e0e0;
+		--toast-bg: #444;
+		--toast-text: #e0e0e0;
+		--modal-backdrop: rgba(0, 0, 0, 0.7);
+		--intro-text: #999;
+		--input-bg: #2a2a2a;
+		--input-text: #e0e0e0;
+	}
+}
+
+body.light-mode {
+	--bg-color: #f4f4f9;
+	--text-color: #333;
+	--heading-color: #4a90e2;
+	--border-color: #ccc;
+	--card-bg: #fff;
+	--button-bg: #4a90e2;
+	--button-hover: #357ab8;
+	--link-color: #4a90e2;
+	--note-border: #ffcc00;
+	--note-bg: #fff8e1;
+	--note-text: #333;
+	--toast-bg: #333;
+	--toast-text: #fff;
+	--modal-backdrop: rgba(0, 0, 0, 0.5);
+	--intro-text: darkgrey;
+	--input-bg: #fff;
+	--input-text: #333;
+}
+
+body.dark-mode {
+	--bg-color: #1a1a1a;
+	--text-color: #e0e0e0;
+	--heading-color: #5ba3f5;
+	--border-color: #444;
+	--card-bg: #2a2a2a;
+	--button-bg: #5ba3f5;
+	--button-hover: #4a90e2;
+	--link-color: #5ba3f5;
+	--note-border: #d4a800;
+	--note-bg: #3a3420;
+	--note-text: #e0e0e0;
+	--toast-bg: #444;
+	--toast-text: #e0e0e0;
+	--modal-backdrop: rgba(0, 0, 0, 0.7);
+	--intro-text: #999;
+	--input-bg: #2a2a2a;
+	--input-text: #e0e0e0;
+}
+
 body {
 	font-family: Arial, sans-serif;
-	background-color: #f4f4f9;
-	color: #333;
+	background-color: var(--bg-color);
+	color: var(--text-color);
 	margin: 0;
 	padding: 0;
 	display: flex;
 	align-items: flex-start;
 	justify-content: center;
 	height: 100vh;
+	transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
@@ -26,7 +109,7 @@ body {
 
 
 h1 {
-	color: #4a90e2;
+	color: var(--heading-color);
 	margin-bottom: 20px;
 }
 
@@ -37,17 +120,33 @@ h2 {
 input[type="file"] {
 	margin-bottom: 2px;
 	padding: 10px;
-	border: 2px solid #4a90e2;
+	border: 2px solid var(--button-bg);
 	border-radius: 5px;
 	font-size: 16px;
 	margin-right: 20px;
 	margin-left: 20px;
+	background-color: var(--input-bg);
+	color: var(--input-text);
+}
+
+textarea {
+	margin-bottom: 10px;
+	padding: 10px;
+	border: 2px solid var(--button-bg);
+	border-radius: 5px;
+	font-size: 14px;
+	font-family: Arial, sans-serif;
+	resize: vertical;
+	width: 90%;
+	max-width: 500px;
+	background-color: var(--input-bg);
+	color: var(--input-text);
 }
 
 
 button,
 .button {
-	background-color: #4a90e2;
+	background-color: var(--button-bg);
 	color: white;
 	border: none;
 	padding: 10px 20px;
@@ -61,18 +160,18 @@ button,
 
 button:hover,
 .button:hover {
-	background-color: #357ab8;
+	background-color: var(--button-hover);
 }
 
 /* Outline button styles */
 .button-outline {
     background-color: transparent;
-    color: #4a90e2;
-    border: 2px solid #4a90e2;
+    color: var(--button-bg);
+    border: 2px solid var(--button-bg);
 }
 
 .button-outline:hover {
-    background-color: #4a90e2;
+    background-color: var(--button-bg);
     color: white;
 }
 
@@ -81,7 +180,7 @@ button:hover,
 }
 
 #linkContainer a {
-	color: #4a90e2;
+	color: var(--link-color);
 	text-decoration: none;
 }
 
@@ -90,12 +189,12 @@ button:hover,
 }
 
 .link-preview p.link-preview-scrollable {
-	border: 1px solid #ccc;
+	border: 1px solid var(--border-color);
 	padding: 10px;
 	margin: 0 auto;
 	margin-top: 20px;
 	border-radius: 5px;
-	background-color: #fff;
+	background-color: var(--card-bg);
 	max-width: 300px;
 	/* Set a maximum width */
 	overflow-x: auto;
@@ -106,7 +205,7 @@ button:hover,
 }
 
 .link-preview a {
-	color: #4a90e2;
+	color: var(--link-color);
 	text-decoration: none;
 }
 
@@ -115,11 +214,11 @@ button:hover,
 }
 
 .file-info {
-	border: 1px solid #ccc;
+	border: 1px solid var(--border-color);
 	padding: 20px;
 	margin-bottom: 20px;
 	border-radius: 5px;
-	background-color: #fff;
+	background-color: var(--card-bg);
 	text-align: left;
 	display: inline-block;
 }
@@ -137,7 +236,7 @@ footer {
 	margin-top: 60px;
 	text-align: center;
 	padding: 10px 0;
-	border-top: 1px solid #ccc;
+	border-top: 1px solid var(--border-color);
 
 }
 
@@ -152,7 +251,7 @@ footer {
 
 footer a,
 .small-link {
-	color: #4a90e2;
+	color: var(--link-color);
 	text-decoration: none;
 	font-size: 12px;
 	font-weight: 400;
@@ -180,7 +279,7 @@ p.warning {
 
 p.introtext {
 	font-size: 14px;
-	color: darkgrey;
+	color: var(--intro-text);
 	margin-bottom: 20px;
 	max-width: 450px;
 	text-align: center;
@@ -195,8 +294,8 @@ p.introtext {
 	min-width: 250px;
 	width: 300px;
 	margin-left: -150px; /* Adjusted to center horizontally */
-	background-color: #333;
-	color: #fff;
+	background-color: var(--toast-bg);
+	color: var(--toast-text);
 	text-align: center;
 	border-radius: 2px;
 	padding: 16px;
@@ -270,12 +369,12 @@ p.introtext {
 }
 
 .note {
-	border: 2px solid #ffcc00;
-	background-color: #fff8e1;
+	border: 2px solid var(--note-border);
+	background-color: var(--note-bg);
 	padding: 12px;
 	margin: 20px 0;
 	border-radius: 5px;
-	color: #333;
+	color: var(--note-text);
 	font-size: 14px;
 	line-height: 1.5;
 	max-width: 300px;
@@ -306,10 +405,10 @@ p.introtext {
 }
 
 .modal-content {
-    background-color: #fff;
+    background-color: var(--card-bg);
     margin: 10% auto;
     padding: 20px;
-    border: 1px solid #888;
+    border: 1px solid var(--border-color);
     width: 80%;
     max-height: 90%;
     overflow-y: auto;
@@ -331,12 +430,17 @@ dialog {
     border: none;
     border-radius: 5px;
     padding: 20px;
-    background-color: #fff;
+    background-color: var(--card-bg);
+    color: var(--text-color);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 dialog::backdrop {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--modal-backdrop);
+}
+
+dialog a {
+	color: var(--link-color);
 }
 
 div#loading {
@@ -376,4 +480,34 @@ div#loading {
 
 p em {
 	font-size: 14px;
+}
+
+/* Dark mode toggle button */
+#theme-toggle {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	background-color: var(--button-bg);
+	color: white;
+	border: none;
+	border-radius: 50%;
+	width: 50px;
+	height: 50px;
+	cursor: pointer;
+	font-size: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	transition: background-color 0.3s ease, transform 0.2s ease;
+	z-index: 1000;
+}
+
+#theme-toggle:hover {
+	background-color: var(--button-hover);
+	transform: scale(1.1);
+}
+
+#theme-toggle:active {
+	transform: scale(0.95);
 }
